@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CVS Health — Security Stack Capability-Alignment Roadmap</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --ink: #1f2328; --ink-dim: #5b6169;
+    --border: #e2e2df; --accent: #8c1d18;
+    --allow: #1a7a3c; --allow-bg: #e8f5ec;
+    --drop: #a3271f; --drop-bg: #fbeceb;
+    --other: #8a7a1a; --other-bg: #f6f1e6;
+    --code-bg: #f1f0ec;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Georgia, 'Times New Roman', serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 48px 32px 96px; }
+  header.doc-header { border-bottom: 3px solid var(--accent); padding-bottom: 24px; margin-bottom: 40px; }
+  header.doc-header .eyebrow { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  h1 { font-size: 30px; margin: 8px 0 4px; }
+  .doc-sub { color: var(--ink-dim); font-size: 15px; font-family: -apple-system, Helvetica, Arial, sans-serif; }
+  h2 { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 56px; }
+  h3 { font-size: 20px; margin-top: 8px; }
+  h4 { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; margin: 0 0 6px; }
+  p { font-size: 16px; }
+  code { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+  .notice { background: #fbf6e9; border: 1px solid #e5d9a8; border-radius: 6px; padding: 18px 22px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; color: #5a4c1e; }
+  .notice strong { color: #3f3413; }
+  .notice ul { margin: 10px 0 0; padding-left: 20px; }
+  .open-gap { background: #e6eef7; border: 1px solid #b8cde0; border-radius: 6px; padding: 18px 22px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; color: #1d3e5c; margin-bottom: 14px; }
+  .open-gap strong { color: #14304a; }
+  table { width: 100%; border-collapse: collapse; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; margin: 10px 0 20px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-dim); background: #f1f0ec; }
+  .act-block { color: var(--drop); font-weight: 600; }
+  .act-other { color: var(--other); font-weight: 600; }
+  .act-allow { color: var(--allow); font-weight: 600; }
+  .phase-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 26px 28px; margin-bottom: 24px; }
+  .phase-head { display: flex; align-items: center; gap: 14px; font-family: -apple-system, Helvetica, Arial, sans-serif; margin-bottom: 6px; flex-wrap: wrap; }
+  .phase-num { font-size: 15px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 50%; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .phase-head h3 { margin: 0; flex: 1; }
+  .phase-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 5px 12px; border-radius: 5px; }
+  .tag-gov { background: #e6eef7; color: #1d4e8c; }
+  .tag-low { background: var(--allow-bg); color: var(--allow); }
+  .tag-med { background: var(--other-bg); color: var(--other); }
+  .tag-high { background: var(--drop-bg); color: var(--drop); }
+  .why-order { font-size: 14px; color: var(--ink-dim); font-style: italic; margin: 0 0 16px; }
+  .item { background: var(--code-bg); border-radius: 6px; padding: 14px 18px; margin-bottom: 12px; }
+  .item h4 { color: var(--accent); margin-bottom: 6px; }
+  .item ul { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
+  .item li { margin-bottom: 5px; }
+  .item .status { font-size: 13px; font-family: -apple-system, Helvetica, Arial, sans-serif; margin-bottom: 6px; }
+  .dep-note { background: #fff; border: 1px dashed var(--border); border-radius: 6px; padding: 10px 14px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; margin-top: 8px; color: var(--ink-dim); }
+  .summary-table td:first-child { font-weight: 600; }
+  .dim { color: var(--ink-dim); }
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 12px; color: var(--ink-dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="doc-header">
+    <div class="eyebrow">CVS Health &mdash; Information Security</div>
+    <h1>Security Stack Capability-Alignment Roadmap</h1>
+    <div class="doc-sub">Palo Alto Panorama &bull; Zscaler &bull; McAfee/Skyhigh &nbsp;&bull;&nbsp; v1.5 &nbsp;&bull;&nbsp; Generated 2026-07-15</div>
+  </header>
+
+  <div class="notice">
+    <strong>Purpose &amp; provenance</strong>
+    <p style="margin:8px 0 0">This roadmap consolidates every gap identified across four prior-session documents into one
+    prioritized, dependency-sequenced plan: the <em>PA vs. Zscaler DLP &amp; Malware/Threat Equivalency Analysis</em>
+    (v8.1), the <em>Palo Alto Panorama Security Policy Documentation</em> (v8, superseding v5), and the existing
+    <em>PA/Zscaler Functionality Implementation Roadmap</em> (v1.5), which already scoped and sequenced three gaps
+    (Encrypted Egress File Blocking, AI Access Suppression, Browser Blocking). Those three are carried forward here
+    unchanged in substance, folded into the broader sequence rather than re-derived. Nothing in this document
+    re-verifies findings already confirmed in the source material; where a finding is inferred rather than
+    confirmed, it's marked as such.</p>
+    <ul>
+      <li>Governance decisions are sequenced before the technical work that depends on them.</li>
+      <li>Foundational/prerequisite work (logging integrity, Cluster B baseline URL filtering) is sequenced before
+      the capabilities that build on it.</li>
+      <li>Effort estimates reflect configuration complexity, not security impact — a low-effort item is not
+      necessarily the highest priority in risk terms, only the fastest to close.</li>
+    </ul>
+  </div>
+
+  <h2>Risk Assessment Methodology — NIST SP 800-30 Rev. 1</h2>
+  <p style="font-size:15px">Confirmed current: <strong>NIST SP 800-30 Revision 1, "Guide for Conducting Risk Assessments"</strong> (Sept. 2012) remains the authoritative version — no Revision 2 exists. Applied here as an additional lens layered on top of the phase sequencing above, not a replacement for it: phase order reflects <em>dependency</em> (what has to happen before what), while the risk rating below reflects <em>severity/urgency</em> (how much it matters if a gap stays open). A "Very High" risk item can still sit in a later phase if it's genuinely gated on a governance decision or missing data — the two lenses answer different questions.</p>
+  <p style="font-size:15px">SP 800-30's process rates each risk as a function of two factors: <strong>likelihood</strong> that a threat event exploits a given vulnerability, and <strong>impact</strong> — the adverse effect on operations, assets, or individuals if it does. Both are rated qualitatively (Very Low / Low / Moderate / High / Very High) and combined into an overall risk level; the guide also accounts for predisposing conditions (organization-specific factors that increase or decrease likelihood, e.g., a healthcare/PBM data footprint raising the stakes of a DLP gap specifically for CVS). Ratings below are qualitative judgments grounded in the confirmed findings in this roadmap — not computed from a formal threat-event catalog, which SP 800-30's full process would require as a separate exercise if a formal risk register is wanted.</p>
+  <table>
+    <tr><th style="width:24%">Gap</th><th style="width:11%">Likelihood</th><th style="width:11%">Impact</th><th style="width:11%">Risk Level</th><th>Rationale</th></tr>
+    <tr><td>DLP Alert&rarr;Block, Cluster A</td><td>High</td><td>Very High</td><td class="act-block">Very High</td><td>Near-universal alert-only DLP on a platform handling PBM/Medicare data; a real exfiltration event would go unblocked and only generate an alert after the fact.</td></tr>
+    <tr><td>Cluster B DLP (absent entirely)</td><td>High</td><td>Very High</td><td class="act-block">Very High</td><td>Zero DLP coverage of any kind on Aetna-heritage traffic — no detection, let alone blocking.</td></tr>
+    <tr><td>DLP pattern curation (no HICN/MBI/PHI)</td><td>Moderate</td><td>Very High</td><td class="act-block">High</td><td>Even once Alert&rarr;Block lands, the pattern set can't catch what it isn't looking for; healthcare identifiers are the core sensitive-data type for this business.</td></tr>
+    <tr><td>Vulnerability Protection (zero blocking)</td><td>Moderate</td><td>High</td><td class="act-other">High</td><td>Every Critical-severity vulnerability signature is alert-only; exploitation of a known CVE would not be stopped inline.</td></tr>
+    <tr><td>Logging Coverage gap (incl. Drop rule)</td><td>Moderate</td><td>High</td><td class="act-other">High</td><td>Doesn't cause a breach directly, but undermines detection/forensics for everything else — including the Drop rule, where denied access attempts may be invisible centrally.</td></tr>
+    <tr><td>Anti-Spyware DNS/C2 gap</td><td>Moderate</td><td>High</td><td class="act-other">High</td><td>Command-and-control detection staying alert-only is a real gap in breach containment specifically (not just prevention).</td></tr>
+    <tr><td>Cluster B Threat Prevention (alert-only, all SPGs)</td><td>Moderate</td><td>High</td><td class="act-other">High</td><td>Same underlying issue as Cluster A's Threat Prevention gaps, but with zero partial mitigation anywhere in the cluster.</td></tr>
+    <tr><td>Encrypted Egress File Blocking (Zscaler Allow default)</td><td>Moderate</td><td>Moderate</td><td class="act-other">Moderate</td><td>A known, common exfiltration/malware-delivery technique (password-protected archives) currently allowed by default at the Zscaler edge.</td></tr>
+    <tr><td>PA SSL/TLS Decryption Policy — status unconfirmed</td><td>Unknown</td><td>Very High <span class="dim">(if likelihood confirmed)</span></td><td class="act-other">Indeterminate</td><td>Cannot be rated until confirmed — but unlike most "unknowns," this one is foundational: it determines how much real-world traffic the DLP/Threat Prevention/File Blocking findings above actually cover.</td></tr>
+    <tr><td>McAfee/Skyhigh unanalyzed</td><td>Unknown</td><td>Unknown</td><td class="act-other">Indeterminate</td><td>Cannot be rated until data exists — treated as a standing "unknown risk" rather than assumed low.</td></tr>
+    <tr><td>AI Access Suppression (governance + technical)</td><td>Moderate</td><td>Moderate</td><td class="act-other">Moderate</td><td>Partially mitigated already (URL-layer blocking for AI chatbots confirmed enforced, per Phase 7) — residual risk is inconsistency and stale exceptions, not an open door.</td></tr>
+    <tr><td>DLP detection-mode gap (office docs)</td><td>Low</td><td>High</td><td class="act-other">Moderate</td><td>Basic-mode detection on the formats most likely to carry PII lowers detection fidelity but doesn't remove it entirely.</td></tr>
+    <tr><td>Zscaler DLP/AI rule-naming inconsistencies</td><td>Low</td><td>Moderate</td><td class="act-other">Moderate</td><td>Operational/governance risk (false confidence that something is blocked when it isn't) rather than a direct exposure.</td></tr>
+    <tr><td>Geo-block list divergence</td><td>Low</td><td>Moderate</td><td class="act-other">Moderate</td><td>13 vs. 23 countries with limited overlap; real gap but narrow compared to the DLP/Threat Prevention items.</td></tr>
+    <tr><td>Browser Blocking Equivalency</td><td>Low</td><td>Low</td><td class="act-allow">Low</td><td>No confirmed active exploitation vector identified; mostly a hardening/defense-in-depth item.</td></tr>
+    <tr><td>Config hygiene / workbook drift</td><td>Low</td><td>Low</td><td class="act-allow">Low</td><td>Documentation accuracy issue, not a live control gap.</td></tr>
+  </table>
+
+  <h2>Compliance Alignment — NIST SP 800-53 Rev. 5</h2>
+  <p style="font-size:15px"><strong>Framing note:</strong> CVS Health is not a federal agency and isn't under a FISMA mandate — SP 800-53 isn't a legal requirement here. It's applied below as the private-sector best-practice control catalog it's widely used as (confirmed current: Rev. 5, 1,196 controls across 20 families, explicitly designed for general-purpose use since this revision), and because SP 800-30's risk assessment process — used above — exists specifically to drive control selection from this catalog. Verdicts are <strong>Aligned</strong> / <strong>Partially Aligned</strong> / <strong>Out of Compliance</strong> / <strong>Not Assessed</strong> (no data), judged strictly against the confirmed findings already in this roadmap — not against every control in the catalog, only the ones the confirmed gaps actually touch.</p>
+  <table>
+    <tr><th style="width:11%">Control</th><th style="width:20%">Requirement</th><th style="width:14%">Verdict</th><th>Basis</th></tr>
+    <tr><td><code>AU-2</code></td><td>Event Logging</td><td class="act-other">Partially Aligned</td><td>37 of 45 PA rules have a defined, working log-forwarding assignment; 2 have no data at all (the same rules missing from the live config snapshot).</td></tr>
+    <tr><td><code>AU-6</code></td><td>Audit Record Review, Analysis, and Reporting</td><td class="act-block">Out of Compliance <span class="dim">(for affected rules)</span></td><td>Events can't be reviewed centrally if they never reach Panorama. The 8 <code>DG_LV_Egress</code> rules forwarding to an undefined <code>default</code> profile — including the Drop rule — are the specific failure point; the other 3 device groups are fully compliant with this control.</td></tr>
+    <tr><td><code>AU-9</code></td><td>Protection of Audit Information</td><td>Not Assessed</td><td>No data collected on audit-log integrity/access controls in either platform's export.</td></tr>
+    <tr><td><code>AU-12</code></td><td>Audit Record Generation</td><td class="act-other">Partially Aligned</td><td>Generation itself appears consistent (log-start/log-end uniform across all 45 rules) — the gap is destination, not generation, so this control fares better than AU-6.</td></tr>
+    <tr><td><code>SC-7(10)</code></td><td>Boundary Protection — Prevent Exfiltration</td><td class="act-block">Out of Compliance</td><td>This is the control DLP and file-blocking gaps map to most directly. Alert-only DLP (Cluster A) and absent DLP (Cluster B) don't prevent exfiltration, only log it after the fact; Zscaler's default-Allow on password-protected/unscannable files leaves a known exfiltration technique open by default.</td></tr>
+    <tr><td><code>SC-8</code></td><td>Transmission Confidentiality and Integrity</td><td class="act-other">Partially Aligned <span class="dim">(platform-dependent — see correction below)</span></td><td><strong>Zscaler: confirmed.</strong> A real SSL Inspection Policy exists — numbered rules with genuine <code>Inspect</code>/<code>Do Not Inspect</code> actions and working Intermediate CA certificates (<code>Zscaler Intermediate CA Certificate</code>, valid through June 2052). A broad <code>InspectALL</code> rule (Any &rarr; Inspect) is present, alongside numerous scoped <code>Do Not Inspect</code> bypass rules for specific apps/certs (SightCall, Snyk/Auth0, Filemaker, several GCP/Azure test rules). <strong>PA: not assessed — do not assume.</strong> See the new open gap below; this correction replaces an earlier overstatement in this document that TLS/SSL inspection was "confirmed" on both platforms.</td></tr>
+    <tr><td><code>SI-3</code></td><td>Malicious Code Protection</td><td class="act-other">Partially Aligned <span class="dim">(cluster-dependent)</span></td><td>Aligned in Cluster A — Antivirus genuinely blocks in the Best Practice profile. Out of Compliance in Cluster B — Antivirus is alert-only across all 7 SPGs with no exceptions.</td></tr>
+    <tr><td><code>SI-4</code></td><td>System Monitoring</td><td class="act-other">Partially Aligned</td><td>Zscaler's Advanced Threats Policy matches vendor-recommended configuration exactly — Aligned there. PA's Anti-Spyware DNS/C2 detection remaining alert-only even in the "Best Practice" profile is the specific shortfall.</td></tr>
+    <tr><td><code>RA-5</code></td><td>Vulnerability Monitoring and Scanning</td><td class="act-block">Out of Compliance</td><td>Detection exists (14 of 15 Vulnerability Protection rules alert, including all Critical-severity signatures) but nothing blocks — RA-5's intent is remediation-oriented, not alert-only, and this profile provides zero deliberate blocking in either cluster.</td></tr>
+    <tr><td><code>AC-4</code></td><td>Information Flow Enforcement</td><td class="act-other">Partially Aligned <span class="dim">(platform-dependent)</span></td><td>Aligned on Zscaler — confirmed global category-block (Rule 60) plus governed AI-chatbot enforcement (Rules 43/44/48). Out of Compliance for PA Cluster B specifically — 5 of 7 SPGs have no URL filtering profile at all, so there's no flow-enforcement mechanism to evaluate there yet.</td></tr>
+    <tr><td><code>CA-7</code></td><td>Continuous Monitoring</td><td class="act-other">Partially Aligned</td><td>Monitoring exists but is fragmented across the estate — two PA clusters at materially different maturity, and one entire platform (McAfee/Skyhigh) currently unverifiable, which itself is a continuous-monitoring gap until Phase 6 data arrives.</td></tr>
+  </table>
+  <p style="font-size:14px" class="dim">Rollup: 0 of 11 assessed controls fully Aligned end-to-end; 3 Out of Compliance (<code>AU-6</code> for affected rules, <code>SC-7(10)</code>, <code>RA-5</code>); 7 Partially Aligned; 1 Not Assessed for lack of data. Read alongside the risk table above, not instead of it — a control being "Partially Aligned" doesn't imply low risk; <code>SC-7(10)</code> and <code>RA-5</code> in particular correspond to the Very High/High risk items already flagged.</p>
+
+  <h2>Compliance Alignment — HIPAA Security Rule</h2>
+  <p style="font-size:15px"><strong>Framing note:</strong> Assessed against the <strong>current</strong> Security Rule (45 CFR Part 164, Subpart C — in force since 2003, amended by the 2013 Omnibus Rule), not the pending update. Confirmed: HHS/OCR's proposed Security Rule overhaul (mandatory MFA, encryption without the "addressable" exception, 72-hour incident reporting) remains an NPRM, not final law — originally targeted for May 2026, since pushed to at least July 2027, with a coalition of 100+ hospital and provider groups requesting withdrawal. The current rule remains what's actually enforced. Also confirmed: OCR's enforcement posture has explicitly expanded beyond risk analysis alone to risk management — whether an organization acts on what a risk analysis finds, not just whether one exists — which is precisely what this roadmap is for. CVS Health's Medicare/PBM business means ePHI is unambiguously in scope somewhere in this environment; that part isn't an assumption.</p>
+  <table>
+    <tr><th style="width:16%">Provision</th><th style="width:20%">Requirement</th><th style="width:14%">Verdict</th><th>Basis</th></tr>
+    <tr><td><code>§164.312(b)</code></td><td>Audit Controls <span class="dim">(Required)</span></td><td class="act-other">Partially Aligned</td><td>Same basis as <code>AU-6</code> above — records of system activity involving ePHI-adjacent traffic aren't centrally reviewable for the 8 <code>DG_LV_Egress</code> rules on the undefined <code>default</code> log-forwarding profile.</td></tr>
+    <tr><td><code>§164.312(e)(1)/(e)(2)(ii)</code></td><td>Transmission Security / Encryption <span class="dim">(Required / Addressable)</span></td><td class="act-block">Out of Compliance</td><td>The most consequential HIPAA finding here. Alert-only DLP (Cluster A) and absent DLP (Cluster B) don't guard against unauthorized disclosure of ePHI in transit — they log it afterward. Compounded by the newly-flagged PA decryption gap: if PA isn't decrypting broadly, it may not be inspecting ePHI-bearing HTTPS sessions at all, which is a direct Transmission Security concern, not a secondary one.</td></tr>
+    <tr><td><code>§164.308(a)(1)(ii)(D)</code></td><td>Information System Activity Review <span class="dim">(Required)</span></td><td class="act-other">Partially Aligned</td><td>Same basis as <code>CA-7</code> above — review capability exists but is fragmented across two PA clusters at different maturity levels, plus one entire unverified platform (McAfee/Skyhigh).</td></tr>
+    <tr><td><code>§164.308(a)(5)(ii)(B)</code></td><td>Protection from Malicious Software <span class="dim">(Addressable)</span></td><td class="act-other">Partially Aligned <span class="dim">(cluster-dependent)</span></td><td>Same basis as <code>SI-3</code> above — Aligned in Cluster A, Out of Compliance in Cluster B.</td></tr>
+    <tr><td><code>§164.312(a)/(c)</code> &amp; Privacy Rule <code>§164.514(b)(2)(i)(P)</code></td><td>Safeguarding ePHI Identifiers <span class="dim">(health plan beneficiary numbers)</span></td><td class="act-block">Out of Compliance</td><td>HICN and MBI are themselves protected identifiers under HIPAA's identifier framework — and the DLP pattern curation gap already identified means <strong>zero</strong> pattern coverage for either, in a business built on Medicare/PBM data. This is the single most concrete, name-checkable HIPAA finding in this entire analysis.</td></tr>
+    <tr><td><code>§164.308(a)(1)(i)</code></td><td>Risk Analysis and Risk Management <span class="dim">(Required)</span></td><td class="act-other">Partially Aligned</td><td>This roadmap itself functions as an informal risk analysis. Given OCR's stated shift toward evaluating risk <em>management</em> (documented, acted-upon findings) rather than a point-in-time assessment, formalizing this into a recurring, evidence-backed program — not just this document — is the actual compliance-relevant next step.</td></tr>
+  </table>
+  <p style="font-size:14px" class="dim">Rollup: 0 of 6 assessed provisions fully Aligned; 2 Out of Compliance (<code>§164.312(e)</code> Transmission Security, ePHI identifier safeguarding); 4 Partially Aligned. No provision here was rated Not Assessed — HIPAA applicability itself isn't in question the way PCI-DSS's is below.</p>
+
+  <h2>Compliance Alignment — PCI DSS v4.0.1</h2>
+  <p style="font-size:15px"><strong>Scope caveat — read this before the table.</strong> Confirmed: PCI DSS v4.0.1 is the only active version as of today, with all 64 v4.0 requirements (including the 51 that were "future-dated") fully mandatory since March 31, 2025. But unlike HIPAA above, <strong>PCI-DSS applicability to the specific rule sets analyzed in this roadmap is not confirmed.</strong> Both platforms' exports do show a "Retail Stores" / "Guest WiFi" traffic population (<code>PRD-RetailStores-Allow</code>, <code>PRD-Retail-GuestWiFi-Allow</code>, IoT Traffic Group), consistent with CVS's retail pharmacy POS footprint — but Cardholder Data Environment (CDE) segmentation boundaries, and whether PAN specifically traverses these analyzed egress paths versus a separately-segmented payment network, were never verified. Findings below are marked conditional except one, which stands on its own regardless of PCI scope.</p>
+  <table>
+    <tr><th style="width:16%">Requirement</th><th style="width:20%">Requirement Summary</th><th style="width:16%">Verdict</th><th>Basis</th></tr>
+    <tr><td><code>Req 4.2.1</code></td><td>Strong Cryptography for Transmission</td><td class="act-block">Out of Compliance <span class="dim">(confirmed, standalone)</span></td><td>Directly observed, not conditional: the Zscaler SSL Inspection rule <code>Riverbend</code> (Rule 15) is configured with <strong>Minimum Client TLS Version: TLS 1.0</strong> and <strong>Minimum Server TLS Version: TLS 1.0</strong>. TLS 1.0/1.1 have been explicitly disallowed as "strong cryptography" since the SSL/early-TLS migration deadline and remain so under v4.0.1 — this holds regardless of whether this specific rule's scoped users touch cardholder data, and is worth flagging as a standalone weak-cryptography finding either way.</td></tr>
+    <tr><td><code>Req 10</code></td><td>Log and Monitor All Access to System Components and Cardholder Data</td><td class="act-other">Partially Aligned <span class="dim">(conditional on CDE scope)</span></td><td>Same basis as the HIPAA/NIST logging findings — <em>if</em> retail/cardholder-adjacent traffic transits the affected <code>DG_LV_Egress</code> rules, this gap applies directly; unconfirmed whether it does.</td></tr>
+    <tr><td><code>Req 3</code></td><td>Protect Stored Account Data (render PAN unreadable)</td><td>Not Assessed</td><td>No confirmed evidence of a dedicated PAN/card-number DLP pattern in either platform's examined configuration — the closest identified pattern is a generic <code>CVS Health Bank Account</code> custom engine in Zscaler, which is not the same data type as a card PAN.</td></tr>
+    <tr><td><code>Req 6.3.3</code></td><td>Patch Critical/High-Severity Vulnerabilities Within 30 Days</td><td class="act-other">Partially Aligned <span class="dim">(loosely related)</span></td><td>The Vulnerability Protection blocking gap (<code>RA-5</code> above) is adjacent but not a direct match — Req 6.3.3 governs patch cadence, not inline IPS blocking. Flagged for completeness, not as a strong finding.</td></tr>
+    <tr><td><code>Req 1</code></td><td>Install and Maintain Network Security Controls</td><td class="act-other">Partially Aligned</td><td>PA/Zscaler egress control exists and is the subject of this entire roadmap — subject to the same alert-vs-block gaps documented throughout.</td></tr>
+    <tr><td><code>Req 11</code></td><td>Test Security of Systems and Networks Regularly</td><td>Not Assessed</td><td>No vulnerability-scanning or penetration-testing cadence data available in any source document.</td></tr>
+  </table>
+  <p style="font-size:14px" class="dim">Rollup: 1 of 6 assessed requirements confirmed Out of Compliance independent of scope (<code>Req 4.2.1</code>, the TLS 1.0 finding); the remainder are conditional on confirming CDE boundaries first — treat this section as provisional until that scope question is answered, not as a settled PCI verdict the way the HIPAA and NIST sections above are.</p>
+
+  <h2>Open Data Gaps — Tracked, Not Yet Actionable</h2>
+
+  <div class="open-gap" style="background:var(--drop-bg);border-color:#e5b3ae;color:#5a1f19;">
+    <strong>PA SSL/TLS Decryption Policy — status unconfirmed. This is foundational, not cosmetic.</strong>
+    <p style="margin:8px 0 0">Checked exhaustively: the only two mentions of "decryption" anywhere in the Panorama documentation
+    are passing references to it as one of several log types forwarded to Panorama — neither confirms an actual
+    Decryption Policy is configured, nor how much traffic it covers if it is. A PA Decryption Policy is a
+    structurally separate rulebase from Security Policy (Panorama: Policies &gt; Decryption vs. Policies &gt;
+    Security), and none of the four source documents ever examined it — the scope was explicitly "Security Rules
+    (45)."</p>
+    <p style="margin:8px 0 0"><strong>Why this matters more than a typical open gap:</strong> DLP content-pattern
+    matching, deep Threat Prevention signatures, and file-type-based File Blocking generally require visibility
+    into decrypted payload to inspect HTTPS sessions at Layer 7. If PA isn't decrypting broadly, the DLP
+    Alert&rarr;Block finding (Phase 2), the Threat Prevention findings (Phase 3), and the File Blocking finding
+    (Phase 1) may all be describing controls that only see a fraction of real-world traffic — the vast majority of
+    which is HTTPS today. This doesn't invalidate those findings (the alert-only/blocking distinction is still real
+    for whatever traffic PA <em>does</em> see), but it means their practical impact can't be fully assessed until
+    decryption coverage is confirmed.</p>
+    <p style="margin:8px 0 0">By contrast, <strong>Zscaler's SSL inspection is confirmed</strong> with concrete
+    evidence — see the corrected SC-8 row above. This asymmetry (one platform confirmed, one not) is itself
+    worth surfacing to whoever owns the PA estate directly.</p>
+    <p style="margin:8px 0 0"><strong>Requested:</strong> a Decryption Policy export from Panorama (rule list,
+    per-rule Decrypt/No-Decrypt/Exclude action, and the SSL Forward Proxy certificate/trust configuration), same
+    rigor as the Security Policy export already analyzed.</p>
+  </div>
+
+  <div class="open-gap">
+    <strong>McAfee/Skyhigh — no policy data received.</strong>
+    <p style="margin:8px 0 0">Per direct confirmation, exports aren't available yet. This remains an open gap:
+    McAfee/Skyhigh is understood to cover the same functional ground as Zscaler via the same client-driven traffic
+    steering model, but nothing about its actual configuration — block/alert posture, DLP coverage, threat
+    categories, geo-blocking — has been verified. <strong>Until this data exists, any statement about CVS's
+    overall (as opposed to PA/Zscaler-specific) security posture is incomplete</strong> — an unknown share of
+    users may be steered through McAfee/Skyhigh instead of Zscaler, and this roadmap cannot speak to their actual
+    protection level. Flagged as a standing prerequisite for Phase 6 below, not guessed at.</p>
+  </div>
+
+  <div class="open-gap" style="background:var(--allow-bg);border-color:#b8ddc3;color:#14532a;">
+    <strong>Zscaler URL Filtering structural mismatch — RESOLVED as of this revision, not an open gap.</strong>
+    <p style="margin:8px 0 0">The source PDF (<code>New - Zscaler Cloud Portal - Print All Policies.pdf</code>,
+    188 pages, the same export cited throughout the Equivalency Analysis) was received in full this session.
+    Direct inspection of pages 24–41 — not previously examined; the prior finding was based on a representative
+    sample that happened not to include this section, not a contradiction of verified fact — confirms Zscaler
+    <strong>does have a standalone "URL Filtering Policy"</strong> section, distinct from and preceding "Cloud App
+    Control Policy" (which starts page 42). It contains 60 numbered rules. See the corrected Content/URL Filtering
+    findings under Phase 7, which is now resolved rather than blocked. This correction supersedes the "structural
+    mismatch" verdict in the Equivalency Analysis v8.1.</p>
+  </div>
+
+  <h2>Sequencing Overview</h2>
+  <table class="summary-table">
+    <tr><th style="width:14%">Phase</th><th style="width:40%">Focus</th><th>Gate / Dependency</th></tr>
+    <tr><td>Phase 0</td><td>Governance decisions &amp; data requests (runs in parallel with everything else)</td><td>None — start immediately, longest lead time of anything in this roadmap</td></tr>
+    <tr><td>Phase 1</td><td>Foundational fixes with no dependencies — logging integrity, encrypted-file blocking, Cluster B baseline URL filtering, config hygiene</td><td>None</td></tr>
+    <tr><td>Phase 2</td><td>DLP hardening — Alert&rarr;Block transition, pattern curation, Cluster B build-from-zero</td><td>Loosely benefits from Phase 1 logging fix (so new Block events are actually visible)</td></tr>
+    <tr><td>Phase 3</td><td>Threat Prevention hardening — Anti-Spyware/Vulnerability Alert&rarr;Block, Cluster B Best-Practice rollout</td><td>None technical; same vendor-recommended direction as Phase 2</td></tr>
+    <tr><td>Phase 4</td><td>AI Access Suppression — technical implementation</td><td>Gated by Phase 0 governance decision AND Phase 1 Cluster B URL filtering baseline</td></tr>
+    <tr><td>Phase 5</td><td>Browser Blocking Equivalency — pilot</td><td>None — independent, lowest urgency, most technically uncertain</td></tr>
+    <tr><td>Phase 6</td><td>McAfee/Skyhigh integration into the equivalency framework</td><td>Gated entirely by Phase 0 data request</td></tr>
+    <tr><td>Phase 7</td><td>Content/URL Filtering — corrected verdict, category diff against PA</td><td class="act-allow">Resolved this revision — no longer gated</td></tr>
+  </table>
+
+  <h2>Phase 0 — Governance &amp; Data Requests</h2>
+  <div class="phase-card">
+    <div class="phase-head"><span class="phase-num">0</span><h3>Decisions and data that gate everything downstream</h3><span class="phase-tag tag-gov">Governance / Data</span></div>
+    <p class="why-order">Runs in parallel from day one. Nothing here blocks Phase 1, but Phases 4, 6, and 7 cannot proceed without it — starting late makes these the critical path.</p>
+    <div class="item">
+      <h4>AI tool sanctioning decision</h4>
+      <div class="status">Gates: Phase 4 (AI Access Suppression) entirely.</div>
+      <ul><li>Decide which AI tools are officially sanctioned for CVS use (e.g., an approved enterprise Copilot/ChatGPT tier) versus which should be blocked outright (consumer/free-tier tools with unclear data-handling terms).</li>
+      <li>This is a business decision, not a technical one — blanket-blocking the <code>artificial-intelligence</code> URL category before this is set risks breaking already-approved usage.</li></ul>
+    </div>
+    <div class="item">
+      <h4>McAfee/Skyhigh policy export request</h4>
+      <div class="status">Gates: Phase 6 entirely; also limits confidence in any "CVS-wide" posture claim until resolved.</div>
+      <ul><li>Request the same depth of export that resolved Zscaler's Web DLP ambiguity — rule-level policy, not just PDF/summary documentation.</li>
+      <li>Also worth confirming: what determines whether a given user is steered to Zscaler vs. McAfee/Skyhigh — without this, it's not possible to say what share of CVS's population each platform's findings actually describe.</li></ul>
+    </div>
+    <div class="item">
+      <h4>Zscaler URL Filtering API export request</h4>
+      <div class="status">Gates: Phase 7.</div>
+      <ul><li>Raised with the Zscaler console owner as an open question: does a standalone global URL/category policy exist that wasn't captured in the prior PDF export, or is category control genuinely only embedded in Cloud App Control's business-exception rules?</li></ul>
+    </div>
+    <div class="item">
+      <h4>Geo-block list reconciliation decision</h4>
+      <div class="status">Gates: nothing downstream, but has been open since the Equivalency Analysis and has no owner yet.</div>
+      <ul><li>PA/CCD blocks 13 countries, Zscaler blocks 23; only 4 overlap (Afghanistan, China, Iran, Russia). Determine whether this divergence is intentional (different threat models per platform/traffic type) or simply never reconciled, and assign an owner either way.</li></ul>
+    </div>
+    <div class="item">
+      <h4>Endpoint / Email / CASB DLP coverage confirmation</h4>
+      <div class="status">Gates: nothing in this roadmap directly, but affects how the overall DLP picture should be read.</div>
+      <ul><li>PA/NGFW is architecturally incapable of endpoint, email, and CASB/SaaS-tenant DLP. Confirm whether tooling beyond Zscaler exists to cover these vectors CVS-wide — if not, Zscaler's Endpoint DLP (USB/personal-cloud-storage blocking) may be the only control in place for those exfiltration paths, which is worth knowing explicitly rather than assuming.</li></ul>
+    </div>
+  </div>
+
+  <h2>Phase 1 — Foundational Work (No Dependencies)</h2>
+  <div class="phase-card">
+    <div class="phase-head"><span class="phase-num">1</span><h3>Fix what's broken or missing outright before building on top of it</h3><span class="phase-tag tag-low">Effort: Low</span></div>
+    <p class="why-order">Nothing here requires a policy decision or another team's input. These are the fastest, most certain wins, and two of them (logging, Cluster B URL filtering) are prerequisites other phases quietly depend on.</p>
+
+    <div class="item">
+      <h4>Logging Coverage remediation — inconsistency confirmed, pattern identified</h4>
+      <div class="status act-block">New finding — not previously roadmapped. Refined this revision with rule-by-rule data.</div>
+      <ul><li>Checked log-forwarding assignment across all 45 rules individually, not just the 8 previously flagged. Result: <strong>the inconsistency is entirely internal to <code>DG_LV_Egress</code></strong>, not a platform-wide pattern. All 32 rules across the other three device groups (<code>DG_LV_EXT_DMZ</code>, <code>DG_AZ_Egress</code>, <code>DG_RI_Egress</code>) uniformly forward to <code>ForwardtoPanoramaCollector</code> — 100% consistent, no exceptions.</li>
+      <li><strong>Within <code>DG_LV_Egress</code> specifically (13 rules), logging splits along a clear line:</strong> the three narrowly-scoped Meritain workgroup rules (Elevated-Rights, HR, IT) correctly forward to <code>ForwardtoPanoramaCollector</code>. Every other rule in the group — the general-purpose Meritain catch-all, <strong>the Drop rule</strong>, both LV-COLO rules, the YouTube exception, and all three PPOM rules — forwards to the undefined <code>default</code> profile instead. This reads as a rule-by-rule oversight (the specific/sensitive rules were configured correctly, the broader/older ones weren't updated to match) rather than a deliberate design difference — worth confirming with whoever owns <code>DG_LV_Egress</code> rather than assuming.</li>
+      <li>Two rules (<code>LAN-MERITAIN-WG-Allow Adobe</code>, <code>LAN-MERITAIN-TO-INTERNET-MERITAIN-EXCEPTION</code>) have no logging data at all — this is the same 2 rules already flagged as missing from the live config snapshot under config hygiene, not a third category.</li>
+      <li>Confirmed: no rule anywhere in the 45-rule catalog shows any variation in log-start/log-end behavior (uniformly log-start=no, log-end=yes) — the inconsistency is specifically in forwarding <em>destination</em>, not logging behavior itself.</li>
+      <li>Prioritize the Drop rule (<code>LAN-MERITAIN-WG-NO-INTERNET-ACCESS</code>) first — denied-access events for that segment are the ones most likely to matter for incident response, and they're currently in the affected group.</li>
+      <li>Confirm directly on the affected firewalls whether local logging is occurring as a fallback, since this wasn't independently verified beyond the absent profile definition.</li></ul>
+    </div>
+
+    <div class="item">
+      <h4>Encrypted Egress File Blocking Equivalency <span class="dim">(carried forward from existing roadmap, Priority 1)</span></h4>
+      <ul><li><strong>Zscaler:</strong> resolve the <code>PRD_DLP_AnyURL_PwdPrtctd</code> subrule ambiguity with the console owner (confirm whether its 10 <code>EXTERNAL</code>-tagged Allow subrules are approved-destination exceptions to a real Block default, or effectively monitor-only); then flip global Security Exceptions from Allow to Block for both Password-Protected and Unscannable Files, following Zscaler's own monitor-first-then-block lifecycle guidance.</li>
+      <li><strong>PA Cluster B:</strong> propagate the already-built, already-proven <code>File_Blocking_Best_Practice_SP</code> profile across Cluster B's 7 SPGs — this is object propagation, not new design. Prioritize <code>hcb_security_profile_grp-Aws</code> and <code>hcb_DMZ_security_profile</code> given external-facing exposure.</li></ul>
+    </div>
+
+    <div class="item">
+      <h4>Cluster B baseline URL Filtering deployment</h4>
+      <div class="status act-block">Prerequisite for Phase 4 (AI Suppression) and closes part of the Cluster A/B posture gap on its own.</div>
+      <ul><li>5 of 7 Cluster B profile groups have no URL filtering profile at all today — AI traffic (and every other category) isn't even monitored there, let alone blocked.</li>
+      <li><code>hcb_url_block_list</code> already proves the model works in this cluster (genuinely blocks abused-drugs, adult, command-and-control, gambling, grayware, hacking, malware, phishing, questionable, ransomware, scanning-activity, weapons) — extend it, or an equivalent, to the remaining groups rather than designing from scratch.</li></ul>
+    </div>
+
+    <div class="item">
+      <h4>Configuration hygiene / workbook drift</h4>
+      <ul><li>2 PA rules (<code>LAN-MERITAIN-WG-Allow Adobe</code>, <code>LAN-MERITAIN-TO-INTERNET-MERITAIN-EXCEPTION</code>) exist in the source workbook but not in the live 06/24/2026 config snapshot — confirm whether renamed, retired, or the workbook is simply stale, and correct the record.</li>
+      <li><code>LAN-PPOM-TO-INTERNET-TEMP-BILL</code> is named as temporary — worth a lifecycle check on whether it's still needed or should be made permanent/retired.</li></ul>
+    </div>
+    <div class="dep-note"><strong>Dependencies:</strong> None. Can start immediately and in parallel with Phase 0.</div>
+  </div>
+
+  <h2>Phase 2 — DLP Hardening</h2>
+  <div class="phase-card">
+    <div class="phase-head"><span class="phase-num">2</span><h3>Close the largest confirmed gap in the entire comparison</h3><span class="phase-tag tag-med">Effort: Medium</span></div>
+    <p class="why-order">This is the single most significant finding across all four documents: PA's DLP is alert-only and near-universal in Cluster A, absent entirely in Cluster B, while Zscaler already blocks. Sequenced after Phase 1 so the logging fix is in place first — otherwise newly-created Block events risk the same visibility gap just found in Phase 1.</p>
+
+    <div class="item">
+      <h4>Cluster A — Alert&rarr;Block transition for <code>NAB - Initial Data Filtering</code></h4>
+      <ul><li>Currently alert-only across all 22 patterns, applied via 17 SPGs, covering 42 of 43 matched rules (97.7%). Follow the same monitor-then-block lifecycle Zscaler's own DLP guidance recommends (and that PA's own documentation explicitly names as the next step for Threat Prevention generally).</li>
+      <li>Sequence by exposure: proxy-facing and colo-facing SPGs before Meritain-specific groups, mirroring the phased approach already proposed for AI suppression rollout.</li></ul>
+    </div>
+
+    <div class="item">
+      <h4>Cluster B — DLP build from zero</h4>
+      <div class="status act-block">Not an extension — Cluster B has no DLP profile, not even alert-only. Larger scope than a simple propagation.</div>
+      <ul><li>Deploy a DLP profile — ideally the improved, curated pattern set below, not just a copy of Cluster A's current template list — across all 7 Cluster B SPGs.</li></ul>
+    </div>
+
+    <div class="item">
+      <h4>DLP pattern curation</h4>
+      <ul><li><strong>Add healthcare-specific patterns.</strong> Zero HICN or MBI coverage today despite this being core to CVS's Medicare/PBM business — Zscaler already has purpose-built <code>CVS Health HICN</code> and <code>_PRD_Confidential_MBI</code> engines to use as a reference.</li>
+      <li><strong>Build CVS-custom patterns.</strong> All 22 current PA patterns are out-of-box templates; Zscaler mixes predefined engines with custom-built, CVS-named ones (<code>CVS Health SSN</code>, <code>CVS Health Bank Account</code>).</li>
+      <li><strong>Review international ID patterns for relevance.</strong> Finland, Australia, Japan, Brazil, Germany, UK, and Canada national IDs are all enabled; confirm whether this matches CVS's actual footprint or reflects the default template enabled wholesale.</li></ul>
+    </div>
+
+    <div class="item">
+      <h4>DLP detection-mode upgrade</h4>
+      <ul><li>PDF, DOC/DOCX, XLS/XLSX, CSV, PPT/PPTX, and RTF — the formats most likely to carry sensitive PII/financial content in a corporate environment — all currently use "basic" detection rather than "deep content-aware" mode. Evaluate moving these into the deep-content-aware type list.</li></ul>
+    </div>
+
+    <div class="item">
+      <h4>Zscaler DLP rule-naming audit</h4>
+      <ul><li><code>PRD_DLP_PCI</code> and <code>PRD_DLP_M365_Block</code> both imply blocking by name but resolve to Allow at the subrule level — already found. Run a systematic pass across the remaining Zscaler DLP ruleset (and the AI-suppression rules in Phase 4) for the same naming-vs-behavior gap, rather than relying on the two instances already surfaced incidentally.</li></ul>
+    </div>
+    <div class="dep-note"><strong>Dependencies:</strong> Benefits from Phase 1's logging fix but isn't strictly blocked by it. Independent of Phase 0 governance decisions.</div>
+  </div>
+
+  <h2>Phase 3 — Threat Prevention Hardening</h2>
+  <div class="phase-card">
+    <div class="phase-head"><span class="phase-num">3</span><h3>Move off Alert-All toward PA's own recommended blocking profiles</h3><span class="phase-tag tag-med">Effort: Medium</span></div>
+    <p class="why-order">PA's own documentation states the default analysis-engine action is alert but explicitly recommends setting all actions to Reset-Both, and separately confirms a predefined <code>strict</code> profile exists to block critical/high/medium severity events. This isn't an open question about direction — it's a named vendor next step PA has been on for roughly a year without completing.</p>
+
+    <div class="item">
+      <h4>Cluster A — Anti-Spyware: close the DNS/C2 gap</h4>
+      <ul><li>Even in the "Best Practice" profile, DNS Security categories (malware, phishing, C2) remain <code>action=allow</code> and inline C2 detection stays alert-only — identical to the alert-only profile on these specific dimensions. High-severity generic signatures already block; this is the remaining piece.</li></ul>
+    </div>
+
+    <div class="item">
+      <h4>Cluster A — Vulnerability Protection: build in real blocking</h4>
+      <ul><li>14 of 15 rules in the "Best Practice" profile explicitly alert, including every Critical-severity rule for both servers and clients — despite far greater granularity than the alert-only alternative. This is a design gap in the profile itself, not an unmigrated default. Needs deliberate blocking rules added, prioritizing Critical-severity server/client rules first.</li></ul>
+    </div>
+
+    <div class="item">
+      <h4>Cluster B — deploy Best-Practice equivalents across all 7 SPGs</h4>
+      <ul><li>Antivirus, Anti-Spyware, and Vulnerability Protection are alert-only in all 7 profile groups with zero exceptions today — Cluster B has none of the partial blocking Cluster A already has (AV and Spyware Best Practice profiles use <code>reset-both</code> for high-severity threats in Cluster A; Cluster B has nothing equivalent). Propagate Cluster A's Best Practice profiles as the starting point, then apply the Cluster A fixes above uniformly.</li></ul>
+    </div>
+    <div class="dep-note"><strong>Dependencies:</strong> None technical. Can run in parallel with Phase 2 — same underlying Alert&rarr;Block pattern, different control domain.</div>
+  </div>
+
+  <h2>Phase 4 — AI Access Suppression</h2>
+  <div class="phase-card">
+    <div class="phase-head"><span class="phase-num">4</span><h3>Technical implementation, once governance lands <span class="dim">(carried forward from existing roadmap, Priority 2)</span></h3><span class="phase-tag tag-high">Effort: Medium-High</span></div>
+    <div class="item">
+      <h4>PA — Cluster A</h4>
+      <ul><li>Once the approved/prohibited AI tool list is set (Phase 0), convert the 9 AI-related URL categories from Alert to Block across the 43 existing occurrences, with an exception carve-out mirroring <code>URL-Filtering-Proxy-Gambling</code>'s proven design (block generically, alert-and-allow only for the specific approved exception, scoped to an AD group).</li>
+      <li>Roll out per-SPG, not estate-wide in one change — proxy-facing/DMZ groups first, Meritain-specific groups after.</li></ul>
+    </div>
+    <div class="item">
+      <h4>PA — Cluster B</h4>
+      <ul><li>Depends on Phase 1's baseline URL filtering deployment landing first — AI-specific suppression has nothing to attach to until then.</li></ul>
+    </div>
+    <div class="item">
+      <h4>Zscaler</h4>
+      <ul><li>Graduate <code>TST_CVSH_DLP_AI_Detection-Block</code> (DLP layer) from its current Allow behavior to a real Block, once validated.</li>
+      <li><strong>Updated, more specific action:</strong> 11 of 12 identified <code>CVSH-Allow-AI-TempAccess*</code> rules (URL Filtering layer) have documented 90-day windows that have already lapsed as of today — confirm directly in the live console whether Zscaler auto-disabled them on schedule or they remain active, and clean up/formally close out expired grants rather than leaving them as configuration debt.</li>
+      <li><strong>Resolved:</strong> <code>DPS_DenyListProd_AIchatbots</code> is confirmed enforced at the URL Filtering layer (rules 43/44/48 — Block-with-redirect, governed Allow-exception, and Isolate fallback), not just a labeled criterion. This was previously an open question; no further action needed on this specific point. The remaining DLP-layer AI rules (<code>PRD_DLP_CoPilot</code>, <code>PRD_DLP_AIchatbot_trnsfr_MON</code>) are still monitor-only by design and separate from this URL-layer enforcement — worth confirming whether that's intentional layering (URL layer blocks access, DLP layer only needs to watch approved traffic) or an inconsistency.</li></ul>
+    </div>
+    <div class="dep-note"><strong>Dependencies:</strong> Hard gate on the Phase 0 AI governance decision. PA Cluster B work additionally gated on Phase 1's baseline URL filtering.</div>
+  </div>
+
+  <h2>Phase 5 — Browser Blocking Equivalency (Pilot)</h2>
+  <div class="phase-card">
+    <div class="phase-head"><span class="phase-num">5</span><h3>Confirmed feasible, not yet built <span class="dim">(carried forward from existing roadmap, Priority 3)</span></h3><span class="phase-tag tag-med">Effort: Medium</span></div>
+    <div class="item">
+      <h4>PA — build and validate</h4>
+      <ul><li>PAN-OS supports this via Custom Application Signatures using the <code>http-req-user-agent-header</code> context — confirmed against current Palo Alto documentation, a purpose-built capability, not a workaround.</li>
+      <li>Build a Custom Application object with pattern matches per target browser (or a single combined "legacy/unsupported browser" app, depending on the actual policy goal); test thoroughly before deployment given real false-positive risk from overly broad or narrow signatures.</li></ul>
+    </div>
+    <div class="item">
+      <h4>Zscaler — confirm actual use, not just presence</h4>
+      <ul><li>The same 7 browsers appear as User Agent criteria across many unrelated Cloud App Control rules — reads more like boilerplate inclusion than deliberate policy. Confirm whether any rule actually uses User Agent to <em>deny</em> a browser before treating Zscaler's side as done.</li></ul>
+    </div>
+    <div class="dep-note"><strong>Dependencies:</strong> None on other phases. Recommend a small pilot (single custom App-ID, single test SPG) before estate-wide commitment — the most technically uncertain item in this roadmap.</div>
+  </div>
+
+  <h2>Phase 6 — McAfee/Skyhigh Integration</h2>
+  <div class="phase-card">
+    <div class="phase-head"><span class="phase-num">6</span><h3>Bring the third platform into the equivalency framework</h3><span class="phase-tag tag-gov">Blocked on data</span></div>
+    <p style="font-size:14px">Entirely gated on the Phase 0 data request. Once policy exports are received, this phase should replicate the same rigor applied to Zscaler: rule-by-rule DLP, Malware/Threat, File Blocking, and URL Filtering comparison against both PA clusters, plus confirmation of which user population McAfee/Skyhigh actually covers relative to Zscaler. Until then, this roadmap makes no claims about McAfee/Skyhigh's actual posture.</p>
+  </div>
+
+  <h2>Phase 7 — Content/URL Filtering: Corrected Verdict (Resolved)</h2>
+  <div class="phase-card">
+    <div class="phase-head"><span class="phase-num">7</span><h3>Zscaler does have a standalone URL Filtering Policy — the mismatch was a sampling gap, not a real structural difference</h3><span class="phase-tag tag-low">Resolved this revision</span></div>
+    <p style="font-size:14px">Confirmed by direct inspection of the full 188-page policy export, pages 24–41: Zscaler's <strong>URL Filtering Policy</strong> is a distinct, standalone section (separate from Cloud App Control) containing <strong>60 numbered rules</strong>. The prior "structural mismatch" finding is superseded, not just supplemented.</p>
+    <div class="item">
+      <h4>Rules 1–59: business-exception model, same pattern already identified elsewhere</h4>
+      <ul><li>The large majority are narrowly-scoped named rules (Allow/Block/Isolate/Disabled) tied to specific AD groups, individual users, locations, or time windows — the same exception-driven pattern the Equivalency Analysis found in Cloud App Control. This part of the original finding holds.</li>
+      <li><strong>A notable concentration of these are AI-governance rules</strong> — at least 12 identified <code>CVSH-Allow-AI-TempAccess*</code> / <code>CVSH-Temp-AI-Allow</code> rules, each tied to a tracked Enterprise AI Governance request ID and a 90-day access window. Checked against today's date: <strong>11 of 12 have end dates already in the past</strong> (the export is dated 5/27/2026; several windows closed as early as May and June 2026). Whether Zscaler auto-disabled these on schedule or they're still live needs direct confirmation — the print export only shows configured state as of the export date, not enforcement history.</li>
+      <li><strong>Rule 43 (<code>TEST-CVSH_AIchatbots_Is...</code>)</strong> is an active <strong>Block With Redirect</strong> rule scoped to <code>DPS_DenyListProd_AIchatbots</code> and the Generative AI category. <strong>Rule 44</strong> is its paired Allow-exception, gated on Data Protection Services / Information Governance Board approval. <strong>Rule 48</strong> adds an Isolate fallback for the same category, applied to all users. Together these directly answer the previously-open question from the AI Access Suppression item: <code>DPS_DenyListProd_AIchatbots</code> <strong>is confirmed enforced</strong>, not just a labeled criterion — at the URL-filtering layer specifically, which is a separate control plane from the DLP-layer rules (monitor-only) documented in the Equivalency Analysis. The "TEST-" prefix on rule 43 is worth flagging to the console owner given it's carrying real production blocking.</li></ul>
+    </div>
+    <div class="item">
+      <h4>Rule 60 (<code>G-CVSH-URL Blocked Categories</code>): the missing global block list</h4>
+      <ul><li>A genuine, comprehensive category-based <strong>Block</strong> rule covering roughly 37 categories — Nudity, Pornography, Gambling, Computer Hacking, Copyright Infringement, Militancy/Hate and Extremism, Weapons/Bombs, Spyware/Adware, Remote Access Tools, Custom Encrypted Content, and more — comparable in scope to PA's ~30-category global block profile.</li>
+      <li>Its description states it was added by Guidepoint Security on May 23, 2023, <strong>imported from the legacy McAfee proxy configuration</strong> — a direct, documented link between McAfee's historical category policy and Zscaler's current one, relevant context for the Phase 6 McAfee/Skyhigh work once that data arrives.</li></ul>
+    </div>
+    <div class="item">
+      <h4>Corrected equivalency verdict</h4>
+      <ul><li>Content/URL Filtering is <strong>not a structural mismatch</strong> — both platforms have a real, comprehensive, global category-block layer (PA's ~30 categories vs. Zscaler's ~37 in Rule 60), plus a large set of narrower business-exception rules layered on top on both sides. A direct side-by-side comparison (category-by-category overlap, similar to the geo-block-list comparison already done) is now possible and should replace the "structural mismatch, not directly comparable" language in the Equivalency Analysis in its next revision.</li></ul>
+    </div>
+    <div class="dep-note"><strong>Dependencies:</strong> None remaining — resolved with data already in hand. Recommend a follow-up category-by-category diff against PA's block list as a fast, low-effort addition to Phase 2/3 work rather than a new phase.</div>
+  </div>
+
+  <h2>Full Gap Inventory — Cross-Reference</h2>
+  <table>
+    <tr><th style="width:26%">Gap</th><th style="width:12%">Phase</th><th style="width:20%">Platform(s)</th><th>Status</th></tr>
+    <tr><td><strong>PA SSL/TLS Decryption Policy — unconfirmed</strong></td><td>0 &rarr; TBD</td><td>PA (both clusters)</td><td class="act-block">New — foundational; determines real-world coverage of DLP/Threat Prevention/File Blocking findings</td></tr>
+    <tr><td>TLS 1.0 minimum allowed on "Riverbend" SSL Inspection rule</td><td>2 <span class="dim">(fold into DLP/crypto hardening)</span></td><td>Zscaler</td><td class="act-block">New — confirmed weak cryptography, PCI DSS Req 4.2.1 relevant regardless of CDE scope</td></tr>
+    <tr><td>Logging Coverage (undefined <code>default</code> profile, incl. 1 Drop rule)</td><td>1</td><td>PA Cluster A</td><td class="act-block">New finding, not previously roadmapped</td></tr>
+    <tr><td>Encrypted Egress File Blocking</td><td>1</td><td>Zscaler, PA Cluster B</td><td>Carried forward from existing roadmap</td></tr>
+    <tr><td>Cluster B baseline URL Filtering</td><td>1</td><td>PA Cluster B</td><td class="act-block">New — prerequisite for Phase 4</td></tr>
+    <tr><td>Config hygiene / workbook drift</td><td>1</td><td>PA Cluster A</td><td>New, minor</td></tr>
+    <tr><td>DLP Alert&rarr;Block transition</td><td>2</td><td>PA Cluster A</td><td class="act-block">New — largest single finding in the baseline, previously unroadmapped</td></tr>
+    <tr><td>DLP build-from-zero</td><td>2</td><td>PA Cluster B</td><td class="act-block">New</td></tr>
+    <tr><td>DLP pattern curation (HICN/MBI, custom patterns, intl. ID relevance)</td><td>2</td><td>PA (both clusters)</td><td class="act-block">New</td></tr>
+    <tr><td>DLP detection-mode upgrade (office docs)</td><td>2</td><td>PA Cluster A</td><td class="act-block">New</td></tr>
+    <tr><td>Zscaler DLP rule-naming audit</td><td>2</td><td>Zscaler</td><td class="act-block">New — extends 2 known instances into a systematic pass</td></tr>
+    <tr><td>Anti-Spyware DNS/C2 blocking gap</td><td>3</td><td>PA Cluster A</td><td class="act-block">New</td></tr>
+    <tr><td>Vulnerability Protection zero-blocking gap</td><td>3</td><td>PA Cluster A</td><td class="act-block">New</td></tr>
+    <tr><td>Threat Prevention Best-Practice rollout</td><td>3</td><td>PA Cluster B</td><td class="act-block">New</td></tr>
+    <tr><td>AI Access Suppression</td><td>4</td><td>PA (both clusters), Zscaler</td><td>Carried forward from existing roadmap</td></tr>
+    <tr><td>Browser Blocking Equivalency</td><td>5</td><td>PA, Zscaler</td><td>Carried forward from existing roadmap</td></tr>
+    <tr><td>McAfee/Skyhigh — unanalyzed</td><td>0 &rarr; 6</td><td>McAfee/Skyhigh</td><td class="act-other">Open gap, no data yet</td></tr>
+    <tr><td>Zscaler URL Filtering structural mismatch</td><td>7</td><td>Zscaler</td><td class="act-allow">Resolved — standalone policy confirmed (60 rules), category-comparable to PA</td></tr>
+    <tr><td>Expired AI TempAccess rules (Zscaler URL layer)</td><td>4</td><td>Zscaler</td><td class="act-block">New finding — 11 of 12 identified grants past their end date</td></tr>
+    <tr><td>Geo-block list reconciliation</td><td>0</td><td>PA/CCD, Zscaler</td><td class="act-other">Open, no owner assigned</td></tr>
+    <tr><td>Endpoint/Email/CASB DLP coverage confirmation</td><td>0</td><td>Zscaler, other tooling (TBD)</td><td class="act-other">Open question, not a technical task</td></tr>
+  </table>
+
+  <footer>
+    v1.5. Adds HIPAA Security Rule and PCI DSS v4.0.1 compliance-alignment sections alongside the existing NIST
+    SP 800-53 pass. HIPAA assessed against the <em>current</em> rule (confirmed: the 2025 NPRM overhaul remains
+    unfinalized, delayed to at least July 2027) — the strongest finding is zero DLP pattern coverage for HICN/MBI,
+    which are themselves protected identifiers, not just a generic pattern gap. PCI DSS is explicitly scoped as
+    conditional pending CDE-boundary confirmation, except one standalone finding surfaced while reviewing the SSL
+    Inspection Policy: the <code>Riverbend</code> rule allows TLS 1.0 as a minimum version, which is disallowed as
+    "strong cryptography" under Req 4.2.1 regardless of whether that traffic is PCI-scope. v1.4's correction stands:
+    Zscaler's SSL inspection is confirmed (numbered rules, working Intermediate CA certificates); PA's decryption
+    status is not confirmed anywhere in the source documents and remains a foundational open gap. Also includes the
+    NIST SP 800-30 Rev. 1 risk-rating pass and the rule-by-rule check across all 45 PA rules confirming the
+    log-forwarding inconsistency is isolated to <code>DG_LV_Egress</code>. Built on the PA vs. Zscaler DLP &amp;
+    Malware/Threat Equivalency Analysis (v8.1), the Palo Alto Panorama Security Policy Documentation (v8,
+    superseding v5), the PA/Zscaler Functionality Implementation Roadmap (v1.5), and direct inspection of the full
+    188-page <code>New - Zscaler Cloud Portal - Print All Policies.pdf</code> export. McAfee/Skyhigh remains an open
+    data gap — see Phase 0. Corrections in this document are explicitly flagged as superseding prior-session
+    verdicts where new source data warrants it, never silently overwritten.
+  </footer>
+
+</div>
+</body>
+</html>
