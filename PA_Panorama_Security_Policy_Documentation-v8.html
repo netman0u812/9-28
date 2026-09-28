@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Palo Alto Panorama — Security Policy Documentation</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --ink: #1f2328; --ink-dim: #5b6169;
+    --border: #e2e2df; --accent: #8c1d18;
+    --allow: #1a7a3c; --allow-bg: #e8f5ec;
+    --drop: #a3271f; --drop-bg: #fbeceb;
+    --code-bg: #f1f0ec;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Georgia, 'Times New Roman', serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 48px 32px 96px; }
+  header.doc-header { border-bottom: 3px solid var(--accent); padding-bottom: 24px; margin-bottom: 40px; }
+  header.doc-header .eyebrow { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  h1 { font-size: 32px; margin: 8px 0 4px; }
+  .doc-sub { color: var(--ink-dim); font-size: 15px; font-family: -apple-system, Helvetica, Arial, sans-serif; }
+  h2 { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 56px; }
+  h3 { font-size: 20px; margin-top: 32px; }
+  h4 { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 15px; margin: 0 0 8px; }
+  p { font-size: 16px; }
+  code { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+  .notice { background: #fbf6e9; border: 1px solid #e5d9a8; border-radius: 6px; padding: 18px 22px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; color: #5a4c1e; }
+  .notice strong { color: #3f3413; }
+  .notice ul { margin: 10px 0 0; padding-left: 20px; }
+  .legend-item { display: flex; gap: 14px; align-items: flex-start; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .legend-item code { flex: 0 0 150px; }
+  .diagram-box { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 16px 0; }
+  .overview-notes { display: grid; gap: 16px; margin-top: 20px; }
+  .overview-item { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; }
+  .overview-item h4 { color: var(--accent); }
+  .overview-item p { font-size: 14px; margin: 0 0 8px; }
+  .overview-item p:last-child { margin-bottom: 0; }
+  .confirmed-note { background: var(--allow-bg); border-left: 3px solid var(--allow); padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 13px !important; }
+  .rule-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin-bottom: 14px; }
+  .rule-head { display: flex; align-items: center; gap: 12px; font-family: -apple-system, Helvetica, Arial, sans-serif; }
+  .rule-num { font-size: 12px; color: #fff; background: var(--ink-dim); border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .rule-name { font-weight: 700; font-size: 16px; flex: 1; }
+  .badge { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
+  .badge.allow { background: var(--allow-bg); color: var(--allow); }
+  .badge.drop { background: var(--drop-bg); color: var(--drop); }
+  .badge.rb-pre { background: #e6eef7; color: #1d4e8c; }
+  .badge.rb-post { background: #f3e9f7; color: #6a2c8c; }
+  .rule-meta { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; color: var(--ink-dim); display: flex; gap: 24px; margin: 10px 0 12px; flex-wrap: wrap; }
+  .rule-desc { margin: 0 0 12px; font-size: 15px; }
+  .flow-detail { background: var(--code-bg); border-radius: 6px; padding: 14px 16px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; }
+  .flow-line { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .flow-label { font-weight: 700; color: var(--ink-dim); margin-right: 4px; }
+  .flow-arrow { color: var(--accent); font-weight: 700; }
+  .zone-chip { background: #dfe7ee; color: #2a4763; padding: 2px 9px; border-radius: 4px; font-weight: 600; font-size: 12px; }
+  .addr-chip { display: inline-block; margin: 1px 3px 1px 0; }
+  .addr-any { color: var(--ink-dim); font-style: italic; }
+  .detail-row { margin-bottom: 6px; }
+  .user-list { margin: 4px 0 0; padding-left: 18px; }
+  .user-list code { font-size: 11px; }
+  .not-found { background: #f1f0ec; border-radius: 6px; padding: 10px 14px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; color: var(--ink-dim); font-style: italic; }
+  .resolved { margin-top: 10px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; background: var(--allow-bg); color: #14532a; border-left: 3px solid var(--allow); padding: 8px 12px; border-radius: 0 4px 4px 0; }
+  .act-block { color: var(--drop); font-weight: 600; }
+  .act-other { color: #8a7a1a; font-weight: 600; }
+  .layer-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; }
+  .finding { background: #fbeceb; border: 1px solid #e0b3af; border-radius: 6px; padding: 18px 22px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; color: #7a231d; margin: 20px 0; }
+  .finding strong { color: #5a1712; }
+  .flag { margin-top: 10px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; background: #fbeceb; color: #7a231d; border-left: 3px solid var(--drop); padding: 8px 12px; border-radius: 0 4px 4px 0; }
+  table { width: 100%; border-collapse: collapse; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-dim); }
+  .risk-1 { color: #1a7a3c; } .risk-2 { color: #8a7a1a; } .risk-3 { color: #a35a1f; } .risk-4 { color: #a3271f; }
+  .df-patterns { columns: 2; font-size: 14px; padding-left: 20px; }
+  .df-patterns li { break-inside: avoid; margin-bottom: 4px; }
+  .spg-card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 14px 18px; margin-bottom: 10px; }
+  .spg-card ul { margin: 0; padding-left: 18px; font-size: 13px; font-family: -apple-system, Helvetica, Arial, sans-serif; }
+  .spg-card li { margin-bottom: 3px; }
+  .dim { color: var(--ink-dim); }
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 12px; color: var(--ink-dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="doc-header">
+    <div class="eyebrow">CVS Health &mdash; Information Security</div>
+    <h1>Palo Alto Panorama Security Policy Documentation</h1>
+    <div class="doc-sub">Source: Palo Alto Panorama Details-MJM.xlsx, cross-verified against live Panorama configuration
+    &nbsp;&bull;&nbsp; Generated 2026-07-10 &nbsp;&bull;&nbsp; 45 security rules, 43 verified against live config</div>
+  </header>
+
+  
+  <h2>How Palo Alto Processes Traffic</h2>
+  <p>Every packet is evaluated in the same general pipeline, regardless of device group. This section is general
+  Palo Alto Networks architecture, provided as context for the environment-specific detail that follows.</p>
+  <div class="diagram-box">
+    
+<svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:-apple-system,Helvetica,Arial,sans-serif;">
+  <defs>
+    <marker id="pmarker" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#5b6169"/>
+    </marker>
+  </defs>
+  <rect x="10" y="70" width="110" height="60" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="65" y="95" text-anchor="middle" font-size="12" font-weight="700">Ingress</text>
+  <text x="65" y="111" text-anchor="middle" font-size="10" fill="#5b6169">Source zone</text>
+  <text x="65" y="123" text-anchor="middle" font-size="10" fill="#5b6169">determined</text>
+  <line x1="120" y1="100" x2="150" y2="100" stroke="#5b6169" stroke-width="2" marker-end="url(#pmarker)"/>
+
+  <rect x="150" y="40" width="200" height="120" rx="6" fill="#fff" stroke="#8c1d18" stroke-width="1.5"/>
+  <text x="250" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="#8c1d18">Security Policy Match</text>
+  <text x="250" y="78" text-anchor="middle" font-size="10" fill="#1f2328">1. Pre-rulebase (Panorama)</text>
+  <text x="250" y="93" text-anchor="middle" font-size="10" fill="#1f2328">2. Local firewall rules</text>
+  <text x="250" y="108" text-anchor="middle" font-size="10" fill="#1f2328">3. Post-rulebase (Panorama)</text>
+  <text x="250" y="123" text-anchor="middle" font-size="10" fill="#1f2328">4. Default intrazone/interzone</text>
+  <text x="250" y="142" text-anchor="middle" font-size="9" fill="#5b6169" font-style="italic">First match wins, evaluated top-down</text>
+  <line x1="350" y1="100" x2="380" y2="100" stroke="#5b6169" stroke-width="2" marker-end="url(#pmarker)"/>
+
+  <rect x="380" y="70" width="100" height="60" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="430" y="95" text-anchor="middle" font-size="12" font-weight="700">Action</text>
+  <text x="430" y="111" text-anchor="middle" font-size="10" fill="#1a7a3c">Allow</text>
+  <text x="430" y="123" text-anchor="middle" font-size="10" fill="#a3271f">Deny / Drop</text>
+  <line x1="480" y1="90" x2="510" y2="90" stroke="#1a7a3c" stroke-width="2" marker-end="url(#pmarker)"/>
+  <line x1="410" y1="130" x2="410" y2="190" stroke="#a3271f" stroke-width="2" marker-end="url(#pmarker)"/>
+  <text x="345" y="200" text-anchor="middle" font-size="10" fill="#a3271f">Session terminated,</text>
+  <text x="345" y="213" text-anchor="middle" font-size="10" fill="#a3271f">logged if configured</text>
+
+  <rect x="510" y="30" width="230" height="140" rx="6" fill="#fff" stroke="#8c1d18" stroke-width="1.5"/>
+  <text x="625" y="48" text-anchor="middle" font-size="12" font-weight="700" fill="#8c1d18">Content-ID (Allowed traffic only)</text>
+  <text x="625" y="68" text-anchor="middle" font-size="10" fill="#1f2328">App-ID \u2014 confirms actual application</text>
+  <text x="625" y="83" text-anchor="middle" font-size="10" fill="#1f2328">Threat Prevention \u2014 AV / anti-spyware /</text>
+  <text x="625" y="96" text-anchor="middle" font-size="10" fill="#1f2328">vulnerability protection</text>
+  <text x="625" y="114" text-anchor="middle" font-size="10" fill="#1f2328">Data Filtering (DLP) \u2014 pattern match</text>
+  <text x="625" y="127" text-anchor="middle" font-size="10" fill="#1f2328">against Data Filtering Profile</text>
+  <text x="625" y="145" text-anchor="middle" font-size="10" fill="#1f2328">URL Filtering / WildFire / File Blocking</text>
+  <text x="625" y="160" text-anchor="middle" font-size="9" fill="#5b6169" font-style="italic">Can still block after policy already allowed</text>
+  <line x1="740" y1="100" x2="770" y2="100" stroke="#5b6169" stroke-width="2" marker-end="url(#pmarker)"/>
+
+  <rect x="770" y="70" width="110" height="60" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="825" y="95" text-anchor="middle" font-size="12" font-weight="700">Egress</text>
+  <text x="825" y="111" text-anchor="middle" font-size="10" fill="#5b6169">Destination zone</text>
+  <text x="825" y="123" text-anchor="middle" font-size="10" fill="#5b6169">forwarded</text>
+</svg>
+
+  </div>
+  <div class="overview-notes">
+    <div class="overview-item">
+      <h4>1. Zone determination</h4>
+      <p>The firewall determines the packet's source zone from the ingress interface, and its destination zone
+      via a forwarding lookup. Security policy is matched on <strong>zone pairs</strong>, not directly on
+      interfaces \u2014 this is what the Zone Flow Model below documents for each device group in this
+      environment.</p>
+    </div>
+    <div class="overview-item">
+      <h4>2. Security policy: pre-rulebase, local, post-rulebase, default</h4>
+      <p>In a Panorama-managed device group, rules are evaluated in a fixed order: <strong>pre-rulebase</strong>
+      rules (pushed from Panorama, evaluated first) &rarr; any <strong>local</strong> rules configured directly
+      on the firewall itself &rarr; <strong>post-rulebase</strong> rules (pushed from Panorama, evaluated last,
+      typically catch-all/cleanup policy) &rarr; the built-in <strong>default</strong> intrazone-allow /
+      interzone-deny rule if nothing else matched. Rules are evaluated top-down within each stage; the first
+      match wins.</p>
+      <p class="confirmed-note">Confirmed in this environment: all 45 rules documented in this file are
+      <strong>pre-rulebase</strong>. Both <code>DG_LV_Egress</code> and <code>DG_LV_EXT_DMZ</code> also carry a
+      <code>Default_Deny_APP</code> post-rulebase rule (any zone &rarr; Untrust, deny) \u2014 a real, concrete
+      example of the post-rulebase catch-all pattern, confirmed directly in the live configuration rather than
+      assumed from general PAN-OS documentation.</p>
+    </div>
+    <div class="overview-item">
+      <h4>3. Action: allow or deny/drop</h4>
+      <p>If no rule matches, the built-in default rule applies (allow within a zone, deny between zones). A
+      <strong>deny</strong>/<strong>drop</strong> match ends processing immediately \u2014 the session never
+      reaches content inspection. Only <strong>allowed</strong> traffic proceeds to the next stage.</p>
+    </div>
+    <div class="overview-item">
+      <h4>4. Content-ID \u2014 Threat, DLP, and application content inspection</h4>
+      <p>For allowed traffic, the Security Profile Group attached to the matching rule determines which content
+      inspection engines run: <strong>App-ID</strong> (confirms the actual application, which may differ from
+      what the initial ports suggested), <strong>Threat Prevention</strong> (antivirus, anti-spyware,
+      vulnerability protection signatures), <strong>Data Filtering</strong> (DLP pattern matching \u2014 see the
+      Data Filtering Profile section below for this environment's actual configured patterns), and
+      <strong>URL Filtering / WildFire / File Blocking</strong>. Any of these can still block or reset a
+      connection <em>after</em> the security rule has already allowed it \u2014 a rule's Allow action is
+      necessary but not sufficient for traffic to actually reach its destination unmodified.</p>
+    </div>
+    <div class="overview-item">
+      <h4>5. Egress</h4>
+      <p>Allowed, inspected traffic is forwarded out the interface bound to the destination zone.</p>
+    </div>
+  </div>
+
+
+  <div class="notice">
+    <strong>Scope, sources &amp; data limitations</strong>
+    <p style="margin:8px 0 0">Rule name, device group, and action come from the source workbook. Zone, source/destination
+    address, application, service, and source-user detail below comes from the live Panorama configuration:
+    PAZSHDC-SEC-PAN-PROD-01_20260624_081758.config (cross-verified identical against RRISHDC-SEC-PAN-PROD-01, same snapshot date — confirmed synchronized Panorama HA pair, 0 field disagreements across 10,227 shared rules).</p>
+    <ul>
+      <li>43 of 45 workbook rules were matched against the live config by (rule name, device
+      group) — 13 rule names exist in more than one device group, so matching used both fields together, not
+      name alone.</li>
+      <li>2 rules (<code>LAN-MERITAIN-WG-Allow Adobe</code>, <code>LAN-MERITAIN-TO-INTERNET-MERITAIN-EXCEPTION</code>)
+      could not be located in the 06/24/2026 snapshot — may have been renamed or removed since the workbook was
+      exported, or the workbook may reflect a different point in time. Their descriptions below remain
+      name-based inference only.</li>
+      <li>The <code>Ent-GitHub-ActionRunners-Merit...</code> rule name was truncated in the source workbook; the
+      full name (<code>Ent-GitHub-ActionRunners-MeritainDMZ</code>) was recovered from the live config.</li>
+      <li>Security Profile Group assignments for rules sharing a group with no individually-named row (marked
+      &ldquo;inferred&rdquo;) still follow the nearest-preceding-header convention noted in the prior version of
+      this document — the live config confirms rule content but does not independently confirm SPG
+      boundaries for those specific rows.</li>
+      <li><strong>This document covers 4 of the CVS PA estate's approximately 10 total egress locations.</strong>
+      Confirmed directly: <code>WIN-PAN-PROD-01</code> (Windsor) manages a completely separate set of device
+      groups and has zero reference to the <code>NAB - Initial Data Filtering</code> profile or any of the
+      four device groups documented here — it is an independent estate, not a fifth location sharing this
+      configuration. <code>MID-PAN-PROD-01</code> (Middletown) has not been checked in this session. The
+      remaining ~4 egress locations beyond these two are unconfirmed.</li>
+    </ul>
+  </div>
+
+  <h2>Device Group Legend</h2>
+  <div class="legend-item"><code>DG_LV_Egress</code><span>Las Vegas Switch COLO — outbound/egress internet traffic<br><span class="dim">Zones: Trust → Untrust</span></span></div><div class="legend-item"><code>DG_LV_EXT_DMZ</code><span>Las Vegas Switch COLO — external DMZ (multi-zone: internal, DMZ, internet)<br><span class="dim">Zones: varies (Trust / DMZ_migration / DMZ_pdc) → varies (Untrust / CVSH_migration / Trust)</span></span></div><div class="legend-item"><code>DG_AZ_Egress</code><span>Scottsdale AZ (Shea DC) — outbound/egress internet traffic. Confirmed: AZ = Arizona/Shea DC (not Microsoft Azure), consistent with this device group's native definition on PAZSHDC-SEC-PAN-PROD-01, the Panorama instance for Scottsdale AZ/Shea DC.<br><span class="dim">Zones: Inside → outside</span></span></div><div class="legend-item"><code>DG_RI_Egress</code><span>Rhode Island (Woonsocket/Cumberland RI campus) — outbound/egress internet traffic<br><span class="dim">Zones: inside → outside</span></span></div>
+
+  <h2>Zone Flow Model</h2>
+  <p>Confirmed traffic flow patterns per device group, from the live Panorama configuration. Each device group
+  uses its own zone-naming convention — same functional pattern (internal zone &rarr; internet-facing zone),
+  different literal zone names per environment.</p>
+  <div class="diagram-box">
+    
+<svg viewBox="0 0 860 620" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:-apple-system,Helvetica,Arial,sans-serif;">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#8c1d18"/>
+    </marker>
+    <marker id="arrow-drop" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#a3271f"/>
+    </marker>
+  </defs>
+
+  <!-- LV Egress -->
+  <text x="20" y="28" font-size="13" font-weight="700" fill="#1f2328">DG_LV_Egress — Las Vegas COLO</text>
+  <rect x="20" y="40" width="140" height="44" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="90" y="67" text-anchor="middle" font-size="14" font-weight="600">Trust</text>
+  <line x1="160" y1="62" x2="290" y2="62" stroke="#8c1d18" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="225" y="52" text-anchor="middle" font-size="11" fill="#5b6169">11 rules</text>
+  <rect x="290" y="40" width="140" height="44" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="360" y="67" text-anchor="middle" font-size="14" font-weight="600">Untrust</text>
+
+  <!-- AZ Egress -->
+  <text x="480" y="28" font-size="13" font-weight="700" fill="#1f2328">DG_AZ_Egress — Scottsdale AZ (Shea DC)</text>
+  <rect x="480" y="40" width="140" height="44" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="550" y="67" text-anchor="middle" font-size="14" font-weight="600">Inside</text>
+  <line x1="620" y1="62" x2="750" y2="62" stroke="#8c1d18" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="685" y="52" text-anchor="middle" font-size="11" fill="#5b6169">12 rules</text>
+  <rect x="750" y="40" width="90" height="44" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="795" y="67" text-anchor="middle" font-size="14" font-weight="600">outside</text>
+
+  <!-- RI Egress -->
+  <text x="20" y="140" font-size="13" font-weight="700" fill="#1f2328">DG_RI_Egress — Rhode Island (Woonsocket/Cumberland)</text>
+  <rect x="20" y="152" width="140" height="44" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="90" y="179" text-anchor="middle" font-size="14" font-weight="600">inside</text>
+  <line x1="160" y1="174" x2="290" y2="174" stroke="#8c1d18" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="225" y="164" text-anchor="middle" font-size="11" fill="#5b6169">11 rules</text>
+  <rect x="290" y="152" width="140" height="44" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="360" y="179" text-anchor="middle" font-size="14" font-weight="600">outside</text>
+
+  <text x="500" y="130" font-size="12" fill="#5b6169" font-style="italic">
+    AZ and RI use their own zone naming (Inside/outside, inside/outside) — distinct
+  </text>
+  <text x="500" y="146" font-size="12" fill="#5b6169" font-style="italic">
+    from LV's Trust/Untrust convention. Same functional pattern, different environments.
+  </text>
+
+  <!-- Special: Enterprise Admins DROP -->
+  <text x="20" y="240" font-size="13" font-weight="700" fill="#7a231d">Exception — blocked, not allowed</text>
+  <rect x="20" y="252" width="180" height="40" rx="6" fill="#fbeceb" stroke="#e0b3af"/>
+  <text x="110" y="277" text-anchor="middle" font-size="12" font-weight="600">Enterprise Admins</text>
+  <line x1="200" y1="272" x2="320" y2="272" stroke="#a3271f" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-drop)"/>
+  <text x="260" y="262" text-anchor="middle" font-size="10" fill="#a3271f">DROP (AZ + RI)</text>
+  <rect x="320" y="252" width="90" height="40" rx="6" fill="#fbeceb" stroke="#e0b3af"/>
+  <text x="365" y="277" text-anchor="middle" font-size="12">outside</text>
+
+  <!-- DMZ multi-zone -->
+  <text x="20" y="345" font-size="13" font-weight="700" fill="#1f2328">DG_LV_EXT_DMZ — Multi-zone DMZ routing (9 documented rules)</text>
+  <rect x="20" y="365" width="150" height="46" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="95" y="384" text-anchor="middle" font-size="12" font-weight="600">Trust /</text>
+  <text x="95" y="399" text-anchor="middle" font-size="12" font-weight="600">CVSH_migration</text>
+
+  <rect x="345" y="365" width="150" height="46" rx="6" fill="#f6f1e6" stroke="#d8c99a"/>
+  <text x="420" y="384" text-anchor="middle" font-size="12" font-weight="600">DMZ_migration /</text>
+  <text x="420" y="399" text-anchor="middle" font-size="12" font-weight="600">DMZ_pdc</text>
+
+  <rect x="670" y="365" width="150" height="46" rx="6" fill="#eef2f6" stroke="#c8ccd2"/>
+  <text x="745" y="389" text-anchor="middle" font-size="14" font-weight="600">Untrust</text>
+
+  <line x1="170" y1="378" x2="345" y2="378" stroke="#8c1d18" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="257" y="368" text-anchor="middle" font-size="10" fill="#5b6169">3 rules</text>
+
+  <line x1="345" y1="400" x2="170" y2="400" stroke="#8c1d18" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="257" y="418" text-anchor="middle" font-size="10" fill="#5b6169">4 rules</text>
+
+  <line x1="495" y1="378" x2="670" y2="378" stroke="#8c1d18" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="582" y="368" text-anchor="middle" font-size="10" fill="#5b6169">1 rule</text>
+
+  <line x1="140" y1="440" x2="700" y2="440" stroke="#8c1d18" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="420" y="458" text-anchor="middle" font-size="10" fill="#5b6169">1 rule — any → Untrust (unscoped source zone)</text>
+
+  <text x="20" y="500" font-size="11" fill="#5b6169">
+    Diagram reflects the 43 of 45 workbook rules confirmed against the live 06/24/2026 Panorama
+  </text>
+  <text x="20" y="516" font-size="11" fill="#5b6169">
+    configuration snapshot. 2 rules (Adobe allow, Meritain exception) could not be located in that
+  </text>
+  <text x="20" y="532" font-size="11" fill="#5b6169">
+    snapshot — see notes in the Security Rules section below.
+  </text>
+</svg>
+
+  </div>
+
+  <h2>Logging Coverage — Finding</h2>
+  <div class="notice" style="background:#fbeceb;border-color:#e0b3af;color:#7a231d;">
+    <strong>Not every rule reaches the same logging destination.</strong>
+    <p style="margin:8px 0 0">35 of the 43 rules confirmed against live config forward to
+    <code>ForwardtoPanoramaCollector</code> — a profile that sends every log type (traffic, threat,
+    wildfire, URL, data, tunnel, auth, decryption) to Panorama with no filtering (<code>filter "All Logs"</code>
+    on each log type, <code>send-to-panorama yes</code>).</p>
+    <p style="margin:8px 0 0">The remaining <strong>8 rules use a log-forwarding profile literally named
+    <code>default</code></strong>, which does not exist as a defined object anywhere in this configuration file.
+    Absent a defined profile, these rules most likely rely on local logging on the firewall itself rather than
+    reaching Panorama — this should be confirmed directly against the device, since it wasn't independently
+    verified beyond the absence of a <code>default</code> profile definition in this config export.</p>
+    <p style="margin:8px 0 0"><strong>All 8 are in <code>DG_LV_Egress</code></strong>, and they're not random:
+    the entire PPOM cluster, the LV-COLO cluster, and two Meritain rules — including
+    <code>LAN-MERITAIN-WG-NO-INTERNET-ACCESS</code>, a <strong>Drop</strong> rule, meaning even blocked-traffic
+    events for that segment may not be reaching central logging.</p>
+    <ul>
+      <li><code>LAN-MERITAIN-TO-INTERNET-WG-GENERAL</code></li>
+      <li><code>LAN-MERITAIN-WG-NO-INTERNET-ACCESS</code> (Drop)</li>
+      <li><code>LV-COLO-ICMP</code></li>
+      <li><code>LV-COLO-INTERNET</code></li>
+      <li><code>LV-COLO-INTERNET-YT-EXCEPTION</code></li>
+      <li><code>LAN-PPOM-TO-INTERNET</code></li>
+      <li><code>LAN-PPOM-TO-INTERNET-NON-APP-DEFAULT</code></li>
+      <li><code>LAN-PPOM-TO-INTERNET-TEMP-BILL</code></li>
+    </ul>
+  </div>
+
+  <h2>Security Rules (45)</h2>
+  
+    <div class="rule-card" id="rule-1">
+      <div class="rule-head">
+        <span class="rule-num">1</span>
+        <span class="rule-name">LAN-MERITAIN-TO-INTERNET-WG-ELEVATED-RIGHTS</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> Meritain-SPG-WG-Elevated-Rights</span>
+      </div>
+      <p class="rule-desc">Permits internet-bound traffic from the Meritain LAN's “elevated rights” workgroup — most likely a designation for privileged or administrative user accounts that require broader internet access than the standard user population.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Meritain-Users-Subnets</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=webgateway_elevated_rights,ou=resources,ou=_security groups,dc=ad,dc=meritain,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-2">
+      <div class="rule-head">
+        <span class="rule-num">2</span>
+        <span class="rule-name">LAN-MERITAIN-TO-INTERNET-WG-GENERAL</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> Meritain-SPG-WG-General</span>
+      </div>
+      <p class="rule-desc">Standard internet access rule for the general Meritain LAN user population.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Meritain-Users-Subnets</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=webgateway_general_access,ou=resources,ou=_security groups,dc=ad,dc=meritain,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>default</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-3">
+      <div class="rule-head">
+        <span class="rule-num">3</span>
+        <span class="rule-name">LAN-MERITAIN-WG-Allow Adobe</span>
+        
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> Meritain-SPG-WG-General (inferred)</span>
+      </div>
+      <p class="rule-desc">Explicit allow carve-out for Adobe traffic (most likely Creative Cloud/Acrobat licensing, activation, and update services) from the Meritain workgroup. Adobe's licensing traffic is commonly split into its own rule because it needs specific allowances distinct from general web browsing.</p>
+      <div class="not-found">Not located in the 06/24/2026 live configuration snapshot — may have been renamed, removed, or the source workbook may predate this snapshot. Description below reflects name-based inference only.</div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-4">
+      <div class="rule-head">
+        <span class="rule-num">4</span>
+        <span class="rule-name">LAN-MERITAIN-WG-NO-INTERNET-ACCESS</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge drop">Drop</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> Meritain-SPG-WG-General (inferred)</span>
+      </div>
+      <p class="rule-desc">Explicit drop rule for a Meritain workgroup segment that should have no internet access at all — likely kiosk, shared-function, or otherwise restricted systems.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Meritain-Users-Subnets</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=webgateway_no_internet_access,ou=resources,ou=_security groups,dc=ad,dc=meritain,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>default</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-5">
+      <div class="rule-head">
+        <span class="rule-num">5</span>
+        <span class="rule-name">LAN-MERITAIN-TO-INTERNET-WG-HR</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> Meritain-SPG-WG-HR</span>
+      </div>
+      <p class="rule-desc">Internet access rule scoped to the Meritain HR workgroup.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Meritain-Users-Subnets</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=webgateway_hr,ou=resources,ou=_security groups,dc=ad,dc=meritain,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-6">
+      <div class="rule-head">
+        <span class="rule-num">6</span>
+        <span class="rule-name">LAN-MERITAIN-TO-INTERNET-WG-IT</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> Meritain-SPG-WG-IT</span>
+      </div>
+      <p class="rule-desc">Internet access rule scoped to the Meritain IT workgroup — likely broader or more permissive than the general-user rule, given IT's operational need for vendor portals, software downloads, and diagnostic tools.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Meritain-Users-Subnets</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=webgateway_it,ou=resources,ou=_security groups,dc=ad,dc=meritain,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-7">
+      <div class="rule-head">
+        <span class="rule-num">7</span>
+        <span class="rule-name">Agents-ADM-NS-SNMP</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_EXT_DMZ</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">Permits SNMP traffic from administrative monitoring agents to NetScaler devices in the Las Vegas external DMZ — supports infrastructure health and performance monitoring.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">DMZ_migration</span> <span class="zone-chip">DMZ_pdc</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">CVSH_migration</span> <span class="zone-chip">Trust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">R-10.47.188.100-103</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <code class="addr-chip">H-10.47.175.83</code></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>[ TCP-5557-5558 TCP-5563]</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-8">
+      <div class="rule-head">
+        <span class="rule-num">8</span>
+        <span class="rule-name">CrowdStrike-Global-Rule</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_EXT_DMZ</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">Permits CrowdStrike endpoint-protection agent traffic (telemetry, threat-intel updates, cloud console communication). A globally-scoped allow rule for the enterprise EDR platform is standard practice, since this traffic needs to reach CrowdStrike's cloud regardless of other category-based restrictions in place.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">any</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>[ crowdstrike ssl]</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-9">
+      <div class="rule-head">
+        <span class="rule-num">9</span>
+        <span class="rule-name">DMZ-HTTPS</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_EXT_DMZ</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">General HTTPS allow rule for DMZ-hosted services — permits encrypted web traffic to or from systems in the external DMZ segment.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">DMZ_migration</span> <span class="zone-chip">DMZ_pdc</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">DMZ-NAB</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>service-https</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-10">
+      <div class="rule-head">
+        <span class="rule-num">10</span>
+        <span class="rule-name">Ent-GitHub-ActionRunners-Merit...</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_EXT_DMZ</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">Appears to permit traffic for GitHub Actions self-hosted runners, most likely scoped to the Meritain environment — would enable CI/CD pipeline runners to communicate with GitHub's cloud services.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">CVSH_migration</span> <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">DMZ_migration</span> <span class="zone-chip">DMZ_pdc</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">ActionRunners-Meritain</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <code class="addr-chip">NET_10.47.216.0_24</code></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>TCP-5985-5986</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      <div class="resolved">✓ Full rule name recovered from the live configuration: <code>Ent-GitHub-ActionRunners-MeritainDMZ</code>.</div>
+      
+    </div>
+    <div class="rule-card" id="rule-11">
+      <div class="rule-head">
+        <span class="rule-num">11</span>
+        <span class="rule-name">LV-COLO-ICMP</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">Permits ICMP (ping, traceroute) traffic for the Las Vegas COLO environment — typically used for network diagnostics and reachability testing.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">LV-COLO-SUBNETS</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>[ icmp ping traceroute]</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>default</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-12">
+      <div class="rule-head">
+        <span class="rule-num">12</span>
+        <span class="rule-name">LV-COLO-INTERNET</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">General internet access rule for the Las Vegas COLO environment.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">LV-COLO-SUBNETS</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>[ service-http service-https]</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>default</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-13">
+      <div class="rule-head">
+        <span class="rule-num">13</span>
+        <span class="rule-name">Netscaler-Agents-NS-ICMP</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_EXT_DMZ</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">Permits ICMP traffic for NetScaler load balancer/ADC agent communications.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">CVSH_migration</span> <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">DMZ_migration</span> <span class="zone-chip">DMZ_pdc</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">H-10.47.175.83</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <code class="addr-chip">R-10.47.188.100-101</code></div>
+        <div class="detail-row"><strong>Application:</strong> <code>[ icmp ping]</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-14">
+      <div class="rule-head">
+        <span class="rule-num">14</span>
+        <span class="rule-name">Netscaler-Agents-NS-TCP</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_EXT_DMZ</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">Permits TCP traffic for NetScaler agent communications, likely the management or monitoring channel between NetScaler devices and their controlling agents.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">CVSH_migration</span> <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">DMZ_migration</span> <span class="zone-chip">DMZ_pdc</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">H-10.47.175.83</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <code class="addr-chip">R-10.47.188.100-101</code></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>[ http HTTPS TCP-SSH UDP-161]</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-15">
+      <div class="rule-head">
+        <span class="rule-num">15</span>
+        <span class="rule-name">NS-ADM-Agents-ICMP</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_EXT_DMZ</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">Permits ICMP traffic for NetScaler administrative agent traffic.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">DMZ_migration</span> <span class="zone-chip">DMZ_pdc</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">CVSH_migration</span> <span class="zone-chip">Trust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">R-10.47.188.100-101</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <code class="addr-chip">H-10.47.175.83</code></div>
+        <div class="detail-row"><strong>Application:</strong> <code>[ icmp ping]</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-16">
+      <div class="rule-head">
+        <span class="rule-num">16</span>
+        <span class="rule-name">NS-ADM-Agents-UDP</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_EXT_DMZ</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">Permits UDP traffic for NetScaler administrative agent communications.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">DMZ_migration</span> <span class="zone-chip">DMZ_pdc</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">CVSH_migration</span> <span class="zone-chip">Trust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">R-10.47.188.100-101</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <code class="addr-chip">H-10.47.175.83</code></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>[ http HTTPS TCP-7279 TCP-27000 TCP-SSH UDP-162 UDP-514 UDP-4739 UDP-5140]</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-17">
+      <div class="rule-head">
+        <span class="rule-num">17</span>
+        <span class="rule-name">PIngID-Radius-Mgmt-Auth</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_EXT_DMZ</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-All</span>
+      </div>
+      <p class="rule-desc">Permits RADIUS authentication traffic for PingID multi-factor authentication management — supports MFA validation for administrative access.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">DMZ_migration</span> <span class="zone-chip">DMZ_pdc</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">CVSH_migration</span> <span class="zone-chip">Trust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">R-10.47.188.100-102</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <code class="addr-chip">H-10.93.0.213</code></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>UDP-1812</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-18">
+      <div class="rule-head">
+        <span class="rule-num">18</span>
+        <span class="rule-name">LV-COLO-INTERNET-YT-EXCEPTION</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-Colo-Exceptions</span>
+      </div>
+      <p class="rule-desc">Carve-out exception permitting YouTube access from the LV COLO environment. “Exception” rules of this kind are typically granted against a broader category-block policy for a specific, approved business need (e.g. training or marketing content).</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">LV-COLO-SUBNETS</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>youtube</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>default</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-19">
+      <div class="rule-head">
+        <span class="rule-num">19</span>
+        <span class="rule-name">LAN-MERITAIN-TO-INTERNET-MERITAIN-EXCEPTION</span>
+        
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-LV-No-PDF-Enc</span>
+      </div>
+      <p class="rule-desc">Exception rule for Meritain LAN traffic, associated with the “No PDF Encryption” profile group — most likely exempts this traffic from PDF encryption/DLP enforcement that would otherwise apply under the standard Meritain rules.</p>
+      <div class="not-found">Not located in the 06/24/2026 live configuration snapshot — may have been renamed, removed, or the source workbook may predate this snapshot. Description below reflects name-based inference only.</div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-20">
+      <div class="rule-head">
+        <span class="rule-num">20</span>
+        <span class="rule-name">LAN-PPOM-TO-INTERNET</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-PPOM-All</span>
+      </div>
+      <p class="rule-desc">General internet access rule for the PPOM LAN segment.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">10.47.177.11</code> <code class="addr-chip">ppom-subnets</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=internetaccess,ou=groups-function,dc=ppom,dc=info</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>default</code></div>
+      </div>
+      
+      <div class="flag">⚠ “PPOM” is not expanded anywhere in the source data; treated here as a business-unit or application identifier. Recommend confirming the full name if this document is used outside a PPOM-familiar audience.</div>
+    </div>
+    <div class="rule-card" id="rule-21">
+      <div class="rule-head">
+        <span class="rule-num">21</span>
+        <span class="rule-name">LAN-PPOM-TO-INTERNET-NON-APP-DEFAULT</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-PPOM-All</span>
+      </div>
+      <p class="rule-desc">Internet access rule for PPOM traffic that doesn't match a specific application signature — a catch-all allowance for otherwise-unclassified traffic.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">10.47.177.11</code> <code class="addr-chip">ppom-subnets</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=internetaccess,ou=groups-function,dc=ppom,dc=info</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>default</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-22">
+      <div class="rule-head">
+        <span class="rule-num">22</span>
+        <span class="rule-name">LAN-PPOM-TO-INTERNET-TEMP-BILL</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_LV_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-PPOM-All</span>
+      </div>
+      <p class="rule-desc">Rule name suggests a temporary allowance (“TEMP”) related to a billing system (“BILL”) for PPOM.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Trust</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">Untrust</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">10.47.177.11</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>default</code></div>
+      </div>
+      
+      <div class="flag">⚠ Named as temporary — worth a lifecycle check to confirm this rule is still needed, or whether it should be retired/made permanent.</div>
+    </div>
+    <div class="rule-card" id="rule-23">
+      <div class="rule-head">
+        <span class="rule-num">23</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-ALL</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-All</span>
+      </div>
+      <p class="rule-desc">Baseline proxy rule permitting general internet access routed through the enterprise web proxy. Present identically at both the AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-24">
+      <div class="rule-head">
+        <span class="rule-num">24</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-ALL</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-All</span>
+      </div>
+      <p class="rule-desc">Baseline proxy rule permitting general internet access routed through the enterprise web proxy. Present identically at both the AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-25">
+      <div class="rule-head">
+        <span class="rule-num">25</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-ENTERPRISE-ADMINS</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge drop">Drop</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-All (inferred)</span>
+      </div>
+      <p class="rule-desc">Blocks proxy-routed internet traffic for the “enterprise admins” category, at both the AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=enterprise admins,cn=users,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      <div class="resolved">✓ Confirmed intentional: the live configuration scopes this rule to source-user <code>cn=enterprise admins,cn=users,dc=corp,dc=cvscaremark,dc=com</code> — a deliberate least-privilege control blocking Enterprise Admins from general proxy internet browsing, not a leftover from a prior state.</div>
+      
+    </div>
+    <div class="rule-card" id="rule-26">
+      <div class="rule-head">
+        <span class="rule-num">26</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-ENTERPRISE-ADMINS</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge drop">Drop</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-All (inferred)</span>
+      </div>
+      <p class="rule-desc">Blocks proxy-routed internet traffic for the “enterprise admins” category, at both the AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=enterprise admins,cn=users,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      <div class="resolved">✓ Confirmed intentional: the live configuration scopes this rule to source-user <code>cn=enterprise admins,cn=users,dc=corp,dc=cvscaremark,dc=com</code> — a deliberate least-privilege control blocking Enterprise Admins from general proxy internet browsing, not a leftover from a prior state.</div>
+      
+    </div>
+    <div class="rule-card" id="rule-27">
+      <div class="rule-head">
+        <span class="rule-num">27</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-TEST-VM</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-All (inferred)</span>
+      </div>
+      <p class="rule-desc">Allows proxy-routed internet access for test/VM environment traffic. Present only at the AZ egress point in this export — no RI counterpart.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">AZ-User-ID-Server</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>application-default</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-28">
+      <div class="rule-head">
+        <span class="rule-num">28</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-GAMBLING</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Gambling</span>
+      </div>
+      <p class="rule-desc">Proxy rule for the “gambling” URL category, present at both the AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=allow_gambling,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li><li><code>cn=rtl-allow_gambling,ou=security groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      <div class="resolved">✓ Confirmed narrowly scoped, not a broad allowance: source-user is restricted to the <code>allow_gambling</code> / <code>rtl-allow_gambling</code> AD groups. This is an opt-in exception for a specific approved population, not a general policy of allowing gambling-category access.</div>
+      
+    </div>
+    <div class="rule-card" id="rule-29">
+      <div class="rule-head">
+        <span class="rule-num">29</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-GAMBLING</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Gambling</span>
+      </div>
+      <p class="rule-desc">Proxy rule for the “gambling” URL category, present at both the AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=allow_gambling,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li><li><code>cn=rtl-allow_gambling,ou=security groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      <div class="resolved">✓ Confirmed narrowly scoped, not a broad allowance: source-user is restricted to the <code>allow_gambling</code> / <code>rtl-allow_gambling</code> AD groups. This is an opt-in exception for a specific approved population, not a general policy of allowing gambling-category access.</div>
+      
+    </div>
+    <div class="rule-card" id="rule-30">
+      <div class="rule-head">
+        <span class="rule-num">30</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-GMAIL</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Gmail</span>
+      </div>
+      <p class="rule-desc">Permits proxy-routed traffic to Gmail, tracked under its own profile group for dedicated content inspection. Present at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>Gmail</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-31">
+      <div class="rule-head">
+        <span class="rule-num">31</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-GMAIL</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Gmail</span>
+      </div>
+      <p class="rule-desc">Permits proxy-routed traffic to Gmail, tracked under its own profile group for dedicated content inspection. Present at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>Gmail</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-32">
+      <div class="rule-head">
+        <span class="rule-num">32</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-IM</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-IM</span>
+      </div>
+      <p class="rule-desc">Permits instant-messaging category proxy traffic at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowchatim,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-33">
+      <div class="rule-head">
+        <span class="rule-num">33</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-IM</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-IM</span>
+      </div>
+      <p class="rule-desc">Permits instant-messaging category proxy traffic at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowchatim,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-34">
+      <div class="rule-head">
+        <span class="rule-num">34</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-REMOTE-ACCESS</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Remote-Access</span>
+      </div>
+      <p class="rule-desc">Permits remote-access category proxy traffic (e.g. third-party remote support tools) with its own dedicated content-inspection profile, at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowra,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-35">
+      <div class="rule-head">
+        <span class="rule-num">35</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-REMOTE-ACCESS</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Remote-Access</span>
+      </div>
+      <p class="rule-desc">Permits remote-access category proxy traffic (e.g. third-party remote support tools) with its own dedicated content-inspection profile, at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowra,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-36">
+      <div class="rule-head">
+        <span class="rule-num">36</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-SHAREWARE</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Shareware</span>
+      </div>
+      <p class="rule-desc">Permits shareware/software-download category proxy traffic at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowdownloads,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-37">
+      <div class="rule-head">
+        <span class="rule-num">37</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-SHAREWARE</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Shareware</span>
+      </div>
+      <p class="rule-desc">Permits shareware/software-download category proxy traffic at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowdownloads,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-38">
+      <div class="rule-head">
+        <span class="rule-num">38</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-SOCIAL-NET</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Social-Networking</span>
+      </div>
+      <p class="rule-desc">Permits social-networking category proxy traffic at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=rtl-social_media_access,ou=security groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li><li><code>cn=socialmediateam,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-39">
+      <div class="rule-head">
+        <span class="rule-num">39</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-SOCIAL-NET</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Social-Networking</span>
+      </div>
+      <p class="rule-desc">Permits social-networking category proxy traffic at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=rtl-social_media_access,ou=security groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li><li><code>cn=socialmediateam,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-40">
+      <div class="rule-head">
+        <span class="rule-num">40</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-STORAGE</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Storage</span>
+      </div>
+      <p class="rule-desc">Permits cloud-storage category proxy traffic (e.g. personal cloud storage services) at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallownetstor,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-41">
+      <div class="rule-head">
+        <span class="rule-num">41</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-STORAGE</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Storage</span>
+      </div>
+      <p class="rule-desc">Permits cloud-storage category proxy traffic (e.g. personal cloud storage services) at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallownetstor,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-42">
+      <div class="rule-head">
+        <span class="rule-num">42</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-STREAMING-MEDIA</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Streaming-Media</span>
+      </div>
+      <p class="rule-desc">Permits streaming-media category proxy traffic at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowsocmedia,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-43">
+      <div class="rule-head">
+        <span class="rule-num">43</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-STREAMING-MEDIA</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Streaming-Media</span>
+      </div>
+      <p class="rule-desc">Permits streaming-media category proxy traffic at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowsocmedia,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-44">
+      <div class="rule-head">
+        <span class="rule-num">44</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-WEB-MAIL</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_RI_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Web-Mail</span>
+      </div>
+      <p class="rule-desc">Permits webmail category proxy traffic (personal email access, e.g. Outlook.com, Yahoo Mail) at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowwebact,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+    <div class="rule-card" id="rule-45">
+      <div class="rule-head">
+        <span class="rule-num">45</span>
+        <span class="rule-name">LAN-TO-INTERNET-PROXY-WEB-MAIL</span>
+        <span class="badge rb-pre">Pre-rulebase</span>
+        <span class="badge allow">Allow</span>
+      </div>
+      <div class="rule-meta">
+        <span class="meta-item"><strong>Device Group:</strong> DG_AZ_Egress</span>
+        <span class="meta-item"><strong>Security Profile Group:</strong> SPG-Proxy-Web-Mail</span>
+      </div>
+      <p class="rule-desc">Permits webmail category proxy traffic (personal email access, e.g. Outlook.com, Yahoo Mail) at both AZ and RI egress points.</p>
+      
+      <div class="flow-detail">
+        <div class="flow-line">
+          <span class="flow-label">Zone flow:</span>
+          <span class="zone-chip">Inside</span>
+          <span class="flow-arrow">&rarr;</span>
+          <span class="zone-chip">outside</span>
+        </div>
+        <div class="detail-row"><strong>Source:</strong> <code class="addr-chip">Internal-CVS_Aetna-Networks</code></div>
+        <div class="detail-row"><strong>Destination:</strong> <span class="addr-any">any</span></div>
+        <div class="detail-row"><strong>Application:</strong> <code>any</code>
+             &nbsp;&nbsp;<strong>Service:</strong> <code>any</code></div>
+        <div class="detail-row"><strong>Restricted to (source-user):</strong><ul class="user-list"><li><code>cn=sfallowwebact,ou=natively created groups,ou=groups,ou=retail,dc=corp,dc=cvscaremark,dc=com</code></li></ul></div>
+        <div class="detail-row"><strong>Logging:</strong> log-start=no, log-end=yes &nbsp;&mdash;&nbsp; forwarded to: <code>ForwardtoPanoramaCollector</code></div>
+      </div>
+      
+      
+    </div>
+
+  <h2>Security Profile Groups (reference)</h2>
+  <p>Security Profile Groups bundle the content-inspection profiles (antivirus, anti-spyware, vulnerability
+  protection, URL filtering, DLP, etc.) applied to matching traffic. Listed below with the rules each one is
+  associated with, per the source workbook.</p>
+  
+    <div class="spg-card">
+      <h4>Meritain-SPG-WG-Elevated-Rights</h4>
+      <ul><li><code>LAN-MERITAIN-TO-INTERNET-WG-ELEVATED-RIGHTS</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>Meritain-SPG-WG-General</h4>
+      <ul><li><code>LAN-MERITAIN-TO-INTERNET-WG-GENERAL</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li><li><code>LAN-MERITAIN-WG-Allow Adobe</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li><li><code>LAN-MERITAIN-WG-NO-INTERNET-ACCESS</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>Meritain-SPG-WG-HR</h4>
+      <ul><li><code>LAN-MERITAIN-TO-INTERNET-WG-HR</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>Meritain-SPG-WG-IT</h4>
+      <ul><li><code>LAN-MERITAIN-TO-INTERNET-WG-IT</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-LV-Colo-All</h4>
+      <ul><li><code>Agents-ADM-NS-SNMP</code> <span class='dim'>(Device Groups: DG_LV_EXT_DMZ)</span></li><li><code>CrowdStrike-Global-Rule</code> <span class='dim'>(Device Groups: DG_LV_EXT_DMZ)</span></li><li><code>DMZ-HTTPS</code> <span class='dim'>(Device Groups: DG_LV_EXT_DMZ)</span></li><li><code>Ent-GitHub-ActionRunners-Merit...</code> <span class='dim'>(Device Groups: DG_LV_EXT_DMZ)</span></li><li><code>LV-COLO-ICMP</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li><li><code>LV-COLO-INTERNET</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li><li><code>Netscaler-Agents-NS-ICMP</code> <span class='dim'>(Device Groups: DG_LV_EXT_DMZ)</span></li><li><code>Netscaler-Agents-NS-TCP</code> <span class='dim'>(Device Groups: DG_LV_EXT_DMZ)</span></li><li><code>NS-ADM-Agents-ICMP</code> <span class='dim'>(Device Groups: DG_LV_EXT_DMZ)</span></li><li><code>NS-ADM-Agents-UDP</code> <span class='dim'>(Device Groups: DG_LV_EXT_DMZ)</span></li><li><code>PIngID-Radius-Mgmt-Auth</code> <span class='dim'>(Device Groups: DG_LV_EXT_DMZ)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-LV-Colo-Exceptions</h4>
+      <ul><li><code>LV-COLO-INTERNET-YT-EXCEPTION</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-LV-No-PDF-Enc</h4>
+      <ul><li><code>LAN-MERITAIN-TO-INTERNET-MERITAIN-EXCEPTION</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-PPOM-All</h4>
+      <ul><li><code>LAN-PPOM-TO-INTERNET</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li><li><code>LAN-PPOM-TO-INTERNET-NON-APP-DEFAULT</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li><li><code>LAN-PPOM-TO-INTERNET-TEMP-BILL</code> <span class='dim'>(Device Groups: DG_LV_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-All</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-ALL</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-ALL</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-ENTERPRISE-ADMINS</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-ENTERPRISE-ADMINS</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-TEST-VM</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-Gambling</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-GAMBLING</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-GAMBLING</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-Gmail</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-GMAIL</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-GMAIL</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-IM</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-IM</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-IM</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-Remote-Access</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-REMOTE-ACCESS</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-REMOTE-ACCESS</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-Shareware</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-SHAREWARE</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-SHAREWARE</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-Social-Networking</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-SOCIAL-NET</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-SOCIAL-NET</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-Storage</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-STORAGE</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-STORAGE</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-Streaming-Media</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-STREAMING-MEDIA</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-STREAMING-MEDIA</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li></ul>
+    </div>
+    <div class="spg-card">
+      <h4>SPG-Proxy-Web-Mail</h4>
+      <ul><li><code>LAN-TO-INTERNET-PROXY-WEB-MAIL</code> <span class='dim'>(Device Groups: DG_AZ_Egress)</span></li><li><code>LAN-TO-INTERNET-PROXY-WEB-MAIL</code> <span class='dim'>(Device Groups: DG_RI_Egress)</span></li></ul>
+    </div>
+
+  <h2>Data Filtering Profile — Processing Rules</h2>
+  <div class="notice" style="background:#fbeceb;border-color:#e0b3af;color:#7a231d;">
+    <strong>This profile alerts on matches; it does not block them.</strong>
+    <p style="margin:8px 0 0">Confirmed in the live configuration: <code>rule1</code>'s action is
+    <code>alert</code> across all 22 patterns — there is no <code>block</code> rule in this profile.
+    Traffic containing a matched pattern (SSN, credit card number, AWS keys, etc.) is logged but is
+    <strong>not prevented from leaving</strong>.</p>
+    <p style="margin:8px 0 0">Worth noting: <strong>Alert is Palo Alto's own default action</strong> for DLP
+    rules — per PA's documentation, "the default action is Alert," and Block must be explicitly
+    configured. So this may not reflect a deliberate CVS decision to alert-only; it may simply mean the
+    default was never overridden. Either way, whether this should be tightened to a blocking action is a
+    policy decision outside the scope of this document — flagged here because the practical effect
+    (sensitive data isn't stopped, only logged) is significant regardless of whether it was a deliberate
+    choice or an unchanged default.</p>
+  </div>
+  <p><strong>NAB - Initial Data Filtering</strong> &mdash; Custom profile, confirmed from the live
+  Panorama configuration:</p>
+  <table>
+    <tr><th>Setting</th><th>Value</th><th>Meaning</th></tr>
+    <tr><td><code>direction</code></td><td><code>c2s</code></td>
+        <td>Client-to-server only — this profile inspects <strong>outbound</strong> traffic (uploads,
+        exfiltration paths), not downloads/inbound content.</td></tr>
+    <tr><td><code>scan-type</code></td><td><code>include</code></td>
+        <td>The file-type list below is an include-list — only these types are scanned.</td></tr>
+    <tr><td><code>log-severity</code></td><td><code>low</code></td>
+        <td>Severity level assigned to log entries this profile generates.</td></tr>
+    <tr><td><code>rule1</code> action</td><td><code>alert</code></td>
+        <td>Logs the match; does not block or reset the session. See callout above.</td></tr>
+    <tr><td>Match threshold</td><td>&ge;1 occurrence, high confidence</td>
+        <td>Uniform across all 22 patterns — a single occurrence of any pattern, at high confidence,
+        triggers the alert.</td></tr>
+    <tr><td>Exclusion list</td><td><code>DLP App Exclusion Filter</code> &mdash; PA vendor best-practice default</td>
+        <td>Confirmed: this profile explicitly references the DLP App Exclusion Filter application list
+        (below) as its exclusion scope — traffic to those 19 applications is not subject to this
+        profile's pattern matching. Confirmed against Palo Alto's own documentation: this is Palo Alto's
+        <strong>predefined</strong> Enterprise DLP application exclusion filter, not a CVS-custom list —
+        PA's official guidance states "Palo Alto Networks recommends adding the predefined DLP App Exclusion
+        application filter if you don't have a custom or predefined application filter you want to add." CVS
+        is applying vendor best practice here, unmodified (or very close to it), not an independently-authored
+        exclusion decision.</td></tr>
+    <tr><td>Applied by</td><td>17 Security Profile Groups — essentially universal across this document</td>
+        <td>4 Meritain SPGs, <code>SPG-PPOM-All</code>, <code>SPG-LV-Colo-All</code>,
+        <code>SPG-LV-Colo-Exceptions</code>, and 10 <code>SPG-Proxy-*</code> groups all reference this
+        profile, covering <strong>42 of 43 matched rules (97.7%)</strong> — spanning all four device
+        groups examined in this session (Las Vegas Egress, Las Vegas DMZ, Scottsdale AZ, Rhode Island). The
+        single exception is <code>LV-COLO-INTERNET</code>, which uses a different profile group
+        (<code>Default_DMZ_LV</code>) that has no data-filtering profile at all. Coverage here is not
+        "broad" — it is effectively universal across everything documented in this file, with one
+        specific, confirmed exception.</td></tr>
+  </table>
+
+  <h3>File types scanned</h3>
+  <p>Two detection modes, confirmed from the live config — not stated in the source workbook:</p>
+  <p><strong>Predefined (deep content-aware) &mdash; 25 types:</strong><br>
+  <code>asm</code>, <code>c_cpp-hdr</code>, <code>c_cpp-src</code>, <code>cpp-hdr</code>, <code>cpp-src</code>, <code>csharp</code>, <code>gzip</code>, <code>java-src</code>, <code>jpeg-upload</code>, <code>js</code>, <code>matlab/obj-c</code>, <code>pl</code>, <code>powershell</code>, <code>png-upload</code>, <code>py</code>, <code>r</code>, <code>ruby</code>, <code>tif</code>, <code>vbs</code>, <code>verilog</code>, <code>vhdl</code>, <code>vsd</code>, <code>vsdx</code>, <code>vsdm</code>, <code>7z</code></p>
+  <p><strong>Default (basic) &mdash; 10 types:</strong><br>
+  <code>csv</code>, <code>doc</code>, <code>docx</code>, <code>pdf</code>, <code>ppt</code>, <code>pptx</code>, <code>rtf</code>, <code>txt-upload</code>, <code>xls</code>, <code>xlsx</code></p>
+  <p class="dim" style="font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:13px">
+  Worth noting: the common office-document formats most likely to carry sensitive PII/financial content in a
+  corporate environment (PDF, DOC/DOCX, XLS/XLSX, CSV, PPT/PPTX, RTF) all use the <em>basic</em> detection
+  mode, not the deep content-aware mode. Whether that distinction has a meaningful practical impact on
+  detection accuracy is a question for whoever owns this profile — flagged here as a factual observation,
+  not a claim about its effectiveness.</p>
+
+  <h3>Data patterns (22)</h3>
+  <ul class="df-patterns"><li>Bank - American Bankers Association Routing Number - ABA (Predefined)</li><li>Bank - International Bank Account Number (Predefined)</li><li>Secret Key - AWS Access Key ID (Predefined)</li><li>Secret Key - AWS Secret Access Key (Predefined)</li><li>Secret Key - RSA Private Key (Predefined)</li><li>Bank - Committee on Uniform Securities Identification Procedures number (Predefined)</li><li>Company Confidential (Predefined)</li><li>Credit Card Number (Predefined)</li><li>Voyager Credit Card (Predefined)</li><li>Magnetic Stripe Information (Predefined)</li><li>Tax Id - US - TIN (Predefined)</li><li>Tax Id - Germany (Predefined)</li><li>Tax Id - UK - UTR (Predefined)</li><li>Tax Id - Australia (Predefined)</li><li>National Id - Finland - Personal Identity Code - HETU (Predefined)</li><li>National Id - UK National Insurance Number - NINO (Predefined)</li><li>National Id - Brazil - CPF (Predefined)</li><li>National Id - Brazil - CNPJ (Predefined)</li><li>National Id - Japan Corporate Number (Predefined)</li><li>National Id - Japan My Number (Predefined)</li><li>National Id - Canada - Social Insurance Number - SIN (Predefined)</li><li>National Id - US Social Security Number - SSN (Predefined)</li></ul>
+
+  <h2>Log File Types &amp; Definitions</h2>
+  <p>Confirmed from the <code>ForwardtoPanoramaCollector</code> log-forwarding profile (used by 35 of the 43
+  documented rules — see Logging Coverage above), which forwards all 8 PAN-OS log types to Panorama,
+  unfiltered (<code>filter "All Logs"</code> on each).</p>
+  <table>
+    <tr><th>Log Type</th><th>Captures</th></tr>
+    <tr><td><code>traffic</code></td><td>Every session match — the core record of which security rule
+        matched, source/destination, zones, ports, bytes, and duration. The base record everything else
+        correlates against.</td></tr>
+    <tr><td><code>threat</code></td><td>Antivirus, anti-spyware, and vulnerability protection signature hits
+        from the Threat Prevention profile attached via the matching rule's Security Profile Group.</td></tr>
+    <tr><td><code>wildfire</code></td><td>Malware/sandbox analysis submissions and verdicts for files that
+        matched WildFire analysis criteria.</td></tr>
+    <tr><td><code>url</code></td><td>URL Filtering category matches and actions (allow/alert/block/continue
+        per category).</td></tr>
+    <tr><td><code>data</code></td><td>Data Filtering (DLP) pattern matches — this is where the
+        <code>NAB - Initial Data Filtering</code> profile's alerts land.</td></tr>
+    <tr><td><code>tunnel</code></td><td>Tunnel inspection records (GRE, non-encrypted VPN tunnels, and other
+        tunneled traffic PAN-OS decodes and inspects).</td></tr>
+    <tr><td><code>auth</code></td><td>Authentication events — User-ID mapping, captive portal, and
+        MFA/authentication policy matches.</td></tr>
+    <tr><td><code>decryption</code></td><td>SSL/TLS decryption activity, including decryption failures and
+        policy-driven decrypt/no-decrypt/exclude decisions.</td></tr>
+  </table>
+  <p class="dim" style="font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:13px">
+  These are distinct log categories in Panorama (separate tabs under Monitor &gt; Logs), not a single merged
+  stream — each type has its own schema and is queried independently, though all 8 correlate back to the
+  same session via a shared session ID.</p>
+
+  <h2>DLP App Exclusion Filter (19 applications) — Palo Alto Best Practice</h2>
+  <div class="notice" style="background:#e8f5ec;border-color:#b8ddc3;color:#14532a;">
+    <strong>This is Palo Alto's predefined vendor exclusion list, not a CVS-custom policy.</strong>
+    <p style="margin:8px 0 0">Confirmed against Palo Alto's own product documentation: Enterprise DLP ships
+    a predefined "DLP App Exclusion Filter" containing common applications that can't be inspected or don't
+    require inspection, and Palo Alto's official guidance explicitly recommends using it — "Palo Alto
+    Networks recommends adding the predefined DLP App Exclusion application filter if you don't have a custom
+    or predefined application filter you want to add." The object name itself
+    (<code>DLP App Exclusion Filter</code>) matches Palo Alto's predefined object naming exactly. CVS applying
+    this list reflects vendor best practice, not an independently-authored exclusion decision that would need
+    its own separate justification.</p>
+  </div>
+  <p>Applications explicitly excluded from DLP inspection &mdash; typically because they use encrypted
+  tunnels DLP cannot inspect (e.g. GlobalProtect), or are unlikely to carry sensitive regulated data
+  (e.g. media/streaming apps), reducing false-positive DLP alerts.</p>
+  <table>
+    <tr><th>Application</th><th>Category</th><th>Subcategory</th><th>Risk</th><th>Ports</th></tr>
+    
+      <tr>
+        <td><code>google-analytics</code></td>
+        <td>general-internet</td>
+        <td>internet-utility</td>
+        <td class="risk-1">1</td>
+        <td>443,80,tcp</td>
+      </tr>
+      <tr>
+        <td><code>google-base</code></td>
+        <td>general-internet</td>
+        <td>internet-utility</td>
+        <td class="risk-4">4</td>
+        <td>443,5222-5224,5228,5229,80,tcp</td>
+      </tr>
+      <tr>
+        <td><code>google-play</code></td>
+        <td>general-internet</td>
+        <td>internet-utility</td>
+        <td class="risk-1">1</td>
+        <td>443,5228,80,tcp,udp</td>
+      </tr>
+      <tr>
+        <td><code>google-update</code></td>
+        <td>business-systems</td>
+        <td>software-update</td>
+        <td class="risk-3">3</td>
+        <td>443,80,tcp</td>
+      </tr>
+      <tr>
+        <td><code>ms-product-activation</code></td>
+        <td>business-systems</td>
+        <td>software-update</td>
+        <td class="risk-1">1</td>
+        <td>443,80,tcp</td>
+      </tr>
+      <tr>
+        <td><code>ms-teams-audio-video</code></td>
+        <td>collaboration</td>
+        <td>internet-conferencing</td>
+        <td class="risk-1">1</td>
+        <td>443,80,dynamic,tcp,udp</td>
+      </tr>
+      <tr>
+        <td><code>ms-update</code></td>
+        <td>business-systems</td>
+        <td>software-update</td>
+        <td class="risk-4">4</td>
+        <td>443,80,8530,8531,tcp</td>
+      </tr>
+      <tr>
+        <td><code>ocsp</code></td>
+        <td>networking</td>
+        <td>infrastructure</td>
+        <td class="risk-2">2</td>
+        <td>443,80,tcp</td>
+      </tr>
+      <tr>
+        <td><code>panos-global-protect</code></td>
+        <td>networking</td>
+        <td>encrypted-tunnel</td>
+        <td class="risk-3">3</td>
+        <td>443,tcp</td>
+      </tr>
+      <tr>
+        <td><code>twitch</code></td>
+        <td>media</td>
+        <td>photo-video</td>
+        <td class="risk-3">3</td>
+        <td>1935,443,80,tcp</td>
+      </tr>
+      <tr>
+        <td><code>vimeo-base</code></td>
+        <td>media</td>
+        <td>photo-video</td>
+        <td class="risk-3">3</td>
+        <td>443,80,8080,tcp</td>
+      </tr>
+      <tr>
+        <td><code>vimeo-create</code></td>
+        <td>media</td>
+        <td>photo-video</td>
+        <td class="risk-3">3</td>
+        <td>443,80,8080,tcp</td>
+      </tr>
+      <tr>
+        <td><code>vimeo-delete</code></td>
+        <td>media</td>
+        <td>photo-video</td>
+        <td class="risk-3">3</td>
+        <td>443,80,8080,tcp</td>
+      </tr>
+      <tr>
+        <td><code>vimeo-download</code></td>
+        <td>media</td>
+        <td>photo-video</td>
+        <td class="risk-3">3</td>
+        <td>443,80,8080,tcp</td>
+      </tr>
+      <tr>
+        <td><code>youtube-base</code></td>
+        <td>media</td>
+        <td>photo-video</td>
+        <td class="risk-1">1</td>
+        <td>443,80,tcp</td>
+      </tr>
+      <tr>
+        <td><code>youtube-tv</code></td>
+        <td>media</td>
+        <td>photo-video</td>
+        <td class="risk-1">1</td>
+        <td>443,tcp</td>
+      </tr>
+      <tr>
+        <td><code>zoom-base</code></td>
+        <td>saas</td>
+        <td>internet-conferencing</td>
+        <td class="risk-2">2</td>
+        <td>3478,3479,390,443,5060,5061,5090,5091,80,8801,8802,dynamic,tcp,udp</td>
+      </tr>
+      <tr>
+        <td><code>zoom-delete</code></td>
+        <td>collaboration</td>
+        <td>internet-conferencing</td>
+        <td class="risk-2">2</td>
+        <td>3478,3479,390,443,5060,5061,5090,5091,80,8801,8802,dynamic,tcp,udp</td>
+      </tr>
+      <tr>
+        <td><code>zoom-record</code></td>
+        <td>collaboration</td>
+        <td>internet-conferencing</td>
+        <td class="risk-2">2</td>
+        <td>3478,3479,390,443,5060,5061,5090,5091,80,8801,8802,dynamic,tcp,udp</td>
+      </tr>
+  </table>
+
+  
+  <h2>Security Enforcement Deep Dive — DLP, File Block, Threat, Content</h2>
+  <div class="notice">
+    <strong>Scope: two separate PA estates, both examined this session.</strong>
+    <p style="margin:8px 0 0"><strong>Cluster A (this document's primary subject)</strong> —
+    <code>PAZSHDC-SEC-PAN-PROD-01</code> / <code>RRISHDC-SEC-PAN-PROD-01</code>, covering
+    <code>DG_LV_Egress</code>, <code>DG_LV_EXT_DMZ</code>, <code>DG_AZ_Egress</code>,
+    <code>DG_RI_Egress</code> — CVS retail/PBM heritage (Las Vegas, Scottsdale AZ, Rhode Island).</p>
+    <p style="margin:8px 0 0"><strong>Cluster B</strong> — <code>MID-PAN-PROD-01</code>, covering 13
+    device groups with <code>mid-fw-*</code> / <code>win-fw-*</code> / <code>hcb_*</code> naming — Aetna
+    heritage (Middletown, Windsor). Confirmed via direct config check: this is a completely independent
+    estate sharing no device groups, profile groups, or the <code>NAB - Initial Data Filtering</code> profile
+    with Cluster A. <code>WIN-PAN-PROD-01</code>, checked separately, confirmed the same — zero overlap
+    with Cluster A.</p>
+  </div>
+
+  <h3>Cluster A — Threat Prevention: Alert-only vs. "Best Practice" profiles</h3>
+  <p>Every Security Profile Group in Cluster A uses one of two profiles per threat category — an
+  explicitly alert-only one, or one named "Best Practice." Checking each profile's actual rule definitions,
+  not just its name, produced a more varied picture than either label alone suggests.</p>
+  
+    <div class="layer-card">
+      <h4>Antivirus</h4>
+      <table>
+        <tr><th style="width:18%"></th><th>Configuration</th></tr>
+        <tr><td><code>Alert-All-AV</code></td><td>alert / alert / alert (action / wildfire-action / mlav-action) across all 7 protocols (FTP, HTTP, HTTP2, IMAP, POP3, SMB, SMTP). ML-based file detection: enable(alert-only) for all 8 categories.</td></tr>
+        <tr><td><code>AV_Best_Practice_SP</code></td><td>reset-both / reset-both / reset-both across all 7 protocols — genuine connection termination, not just logging. ML-based file detection: enable (full enforcement) for all 8 categories.</td></tr>
+      </table>
+      <div class="resolved" style="background:var(--code-bg);color:var(--ink);border-left-color:var(--ink-dim)">Best Practice profile provides real, active blocking.</div>
+    </div>
+    <div class="layer-card">
+      <h4>Anti-Spyware</h4>
+      <table>
+        <tr><th style="width:18%"></th><th>Configuration</th></tr>
+        <tr><td><code>Alert-All-AS</code></td><td>alert for every severity (Critical/High/Medium/Informational/Low). Description literally reads “Alert all profile for antispyware signatures of all severities.” C2 detection (5 engines: HTTP/HTTP2/SSL/Unknown-TCP/Unknown-UDP): alert only. DNS Security categories: action=default.</td></tr>
+        <tr><td><code>Spyware_Best_Practice_SP</code></td><td>reset-both for Critical/High/Medium; default (signature-dependent) for Low/Informational. <strong>But:</strong> DNS Security categories (malware, phishing, C2, grayware, etc.) are set to action=allow even here — not blocked. C2 detection engines remain alert-only, identical to the Alert-All profile.</td></tr>
+      </table>
+      <div class="resolved" style="background:var(--code-bg);color:var(--ink);border-left-color:var(--ink-dim)">Partial blocking — real for generic high-severity signatures, but DNS-based threat categories and inline C2 detection are alert-only in <em>both</em> profiles, not just the alert-named one.</div>
+    </div>
+    <div class="layer-card">
+      <h4>Vulnerability Protection</h4>
+      <table>
+        <tr><th style="width:18%"></th><th>Configuration</th></tr>
+        <tr><td><code>Alert-All-Vuln</code></td><td>Single catch-all rule, all severities (critical/high/medium/low/informational), action=alert. Description: “Alert All Profile for Vulnerability Signatures (CVE / Mitre sigs).” SQL/Command Injection inline detection: alert only.</td></tr>
+        <tr><td><code>Vulnerability_Best_Practice_SP</code></td><td>15 granular, named rules (by host type × severity × category: Brute_Force_Server_Critical, Server_Critical, Client_Critical, etc.) — <strong>14 of 15 explicitly set action=alert, including every Critical-severity rule for both servers and clients. The 15th defers to the signature's own default action.</strong></td></tr>
+      </table>
+      <div class="resolved" style="background:var(--code-bg);color:var(--ink);border-left-color:var(--ink-dim)"><strong>No deliberate blocking action anywhere in this profile</strong>, despite the “Best Practice” name and far greater rule granularity than the alert-only profile. This is the one Best Practice profile among the three where more granularity did not translate into more enforcement.</div>
+    </div>
+
+  <h3>Cluster A — Content / URL Filtering</h3>
+  <p>Unlike DLP and Vulnerability Protection, URL filtering profiles across Cluster A (checked:
+  <code>UR-Filtering-LV-Colo-All</code>, <code>URL-Filtering-LV-Colo-Exception</code>,
+  <code>URL-Filtering-Proxy-AllI</code>, <code>URL-Filtering-Proxy-Gambling</code>,
+  <code>URL-Filtering-Proxy-Gmail</code>, <code>URL-Filtering-Proxy-IM</code>,
+  <code>URL-Filtering-Proxy-Media</code>) show <strong>genuine, comprehensive category-based blocking</strong>,
+  not just alerting.</p>
+  <div class="resolved">
+    <strong>Blocked in every profile checked:</strong> abused-drugs, adult, browser-runtime-attack, command-and-control, compromised-website, copyright-infringement, dynamic-dns, encrypted-dns, extremism, file-converter, grayware, hacking, insufficient-content, malware, marijuana, not-resolved, nudity, online-storage-and-backup, parked, peer-to-peer, phishing, proxy-avoidance-and-anonymizers, questionable, ransomware, remote-access, scanning-activity, sex-education, shareware-and-freeware, swimsuits-and-intimate-apparel, unknown, weapons, web-based-email — plus abortion, dating, gambling, social-networking, streaming-media in most profiles (each excluded specifically from the one profile paired with that category's approved-access rule)
+  </div>
+  <p style="font-size:14px">The one deliberate, consistent exception: <code>URL-Filtering-Proxy-Gambling</code>
+  is the only profile that excludes "gambling" from its block list (moved to alert instead) — correctly
+  matching the approved-exception Security Rule (<code>LAN-TO-INTERNET-PROXY-GAMBLING</code>, scoped to the
+  <code>allow_gambling</code> AD group) that uses this specific URL profile. The design is internally
+  consistent: block generically, alert-and-allow only for the specific approved exception.</p>
+
+  <h3>Cluster B (MID/WIN) — Complete Profile Overview</h3>
+  <p>7 Security Profile Groups total, all with the same Threat Prevention posture, all confirmed by direct
+  inspection of each profile's actual configuration (not name alone):</p>
+  <table>
+    <tr><th>Security Profile Group</th><th>Antivirus</th><th>Anti-Spyware</th><th>Vulnerability</th>
+        <th>File Blocking</th><th>URL Filtering</th><th>DLP</th></tr>
+    
+      <tr>
+        <td><code>hcb_security_profile_grp_Azure</code></td>
+        <td class="act-other">alert-only-av</td>
+        <td class="act-other">alert_spy</td>
+        <td class="act-other">alert_vulnerablity</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+      </tr>
+      <tr>
+        <td><code>hcb_DMZ_security_profile</code></td>
+        <td class="act-other">alert-only-av</td>
+        <td class="act-other">alert_spy</td>
+        <td class="act-other">alert_vulnerablity</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+      </tr>
+      <tr>
+        <td><code>hcb_officeext_security_profile</code></td>
+        <td class="act-other">alert-only-av</td>
+        <td class="act-other">alert_spy</td>
+        <td class="act-other">alert_vulnerablity</td>
+        <td class="act-other">—</td>
+        <td class="act-other">alert_url_filtering (no block section at all)</td>
+        <td class="act-other">—</td>
+      </tr>
+      <tr>
+        <td><code>hcb_security_profile_grp-Aws</code></td>
+        <td class="act-other">alert-only-av</td>
+        <td class="act-other">alert_spy</td>
+        <td class="act-other">alert_vulnerablity</td>
+        <td class="act-other">alert_only_blocking (single rule, file-type=any, action=alert — no file type blocked, not even encrypted files or executables)</td>
+        <td class="act-block">hcb_url_block_list (genuinely blocks: abused-drugs, adult, command-and-control, gambling, grayware, hacking, malware, phishing, questionable, ransomware, scanning-activity, weapons)</td>
+        <td class="act-other">—</td>
+      </tr>
+      <tr>
+        <td><code>hcb_GLR_security_profile</code></td>
+        <td class="act-other">alert-only-av</td>
+        <td class="act-other">alert_spy</td>
+        <td class="act-other">alert_vulnerablity</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+      </tr>
+      <tr>
+        <td><code>hcb_CVS_security_profile</code></td>
+        <td class="act-other">alert-only-av</td>
+        <td class="act-other">alert_spy</td>
+        <td class="act-other">alert_vulnerablity</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+      </tr>
+      <tr>
+        <td><code>hcb_EDMZ_security_profile</code></td>
+        <td class="act-other">alert-only-av</td>
+        <td class="act-other">alert_spy</td>
+        <td class="act-other">alert_vulnerablity</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+        <td class="act-other">—</td>
+      </tr>
+  </table>
+  <div class="finding">
+    <strong>Cluster B's enforcement posture is uniformly weaker than Cluster A's across every category
+    checked.</strong>
+    <ul style="margin:8px 0 0;padding-left:20px">
+      <li><strong>DLP: absent everywhere</strong> — not even an alert-only version exists in this
+      cluster, versus Cluster A's near-universal (though alert-only) coverage.</li>
+      <li><strong>Antivirus, Anti-Spyware, Vulnerability Protection: alert-only in all 7 profile groups, no
+      exceptions</strong> — confirmed by direct profile inspection, not just naming. Cluster A has at
+      least some genuine blocking (AV and Spyware Best Practice profiles use <code>reset-both</code> for
+      high-severity threats); Cluster B has none.</li>
+      <li><strong>File Blocking: present in only 1 of 7 groups, and even there it's alert-only for every
+      file type</strong> — no equivalent to Cluster A's genuine block rules for encrypted files
+      (<code>encrypted-zip</code>, <code>encrypted-pdf</code>, etc.) or high-risk executables.</li>
+      <li><strong>URL Filtering: present in only 2 of 7 groups.</strong> One is genuinely alert-only with no
+      block section at all. The other (<code>hcb_url_block_list</code>, used only by the AWS-scoped profile
+      group) does have a real, meaningful block list — the one bright spot in this cluster, and worth
+      noting it isn't nothing.</li>
+    </ul>
+  </div>
+
+  <h3>Cross-Cluster Summary (In Progress)</h3>
+  <table>
+    <tr><th>Category</th><th>Cluster A (LV/AZ/RI)</th><th>Cluster B (MID/WIN)</th></tr>
+    <tr><td>DLP</td><td class="act-other">Alert-only, but present in 42/43 rules</td><td style="color:var(--drop)">Absent entirely</td></tr>
+    <tr><td>Antivirus</td><td>Mixed — real blocking (Best Practice) on Meritain SPGs, alert-only elsewhere</td><td class="act-other">Alert-only everywhere</td></tr>
+    <tr><td>Anti-Spyware</td><td>Mixed — partial blocking (high-severity generic signatures only)</td><td class="act-other">Alert-only everywhere</td></tr>
+    <tr><td>Vulnerability Protection</td><td class="act-other">Alert-only everywhere, despite "Best Practice" naming</td><td class="act-other">Alert-only everywhere</td></tr>
+    <tr><td>File Blocking</td><td class="act-block">Genuine blocking (encrypted files, high-risk executables) across 18 SPGs</td><td class="act-other">Absent or alert-only in all 7 groups</td></tr>
+    <tr><td>URL/Content Filtering</td><td class="act-block">Genuine, comprehensive category blocking across all profiles checked</td><td>Present in 2 of 7 groups; 1 has real blocking, 1 is alert-only</td></tr>
+  </table>
+  <p>The overall picture across both clusters: <strong>enforcement varies enormously by control type, not
+  uniformly by "alert vs. block" as a single axis.</strong> File Blocking and URL/Content Filtering in
+  Cluster A are genuinely strong controls. DLP and Vulnerability Protection are alert-only across the board
+  in both clusters, regardless of naming. Cluster B (Aetna heritage) is weaker than Cluster A (CVS retail/PBM
+  heritage) in every category where a direct comparison is possible, most starkly in DLP, which doesn't exist
+  in Cluster B at all.</p>
+
+
+
+  <footer>
+    Generated from Palo Alto Panorama Details-MJM.xlsx, cross-verified against
+    PAZSHDC-SEC-PAN-PROD-01_20260624_081758.config. Rule descriptions combine name/context-based inference
+    with confirmed live-configuration detail where matched; items without a live-config match remain inference
+    only and are marked accordingly.
+  </footer>
+
+</div>
+</body>
+</html>

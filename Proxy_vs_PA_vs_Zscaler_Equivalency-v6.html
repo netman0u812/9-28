@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Skyhigh/McAfee Proxy vs. PA vs. Zscaler — Equivalency Analysis</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --ink: #1f2328; --ink-dim: #5b6169;
+    --border: #e2e2df; --accent: #8c1d18;
+    --allow: #1a7a3c; --allow-bg: #e8f5ec;
+    --drop: #a3271f; --drop-bg: #fbeceb;
+    --code-bg: #f1f0ec;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Georgia, 'Times New Roman', serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 32px 96px; }
+  header.doc-header { border-bottom: 3px solid var(--accent); padding-bottom: 24px; margin-bottom: 40px; }
+  header.doc-header .eyebrow { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  h1 { font-size: 30px; margin: 8px 0 4px; }
+  .doc-sub { color: var(--ink-dim); font-size: 15px; font-family: -apple-system, Helvetica, Arial, sans-serif; }
+  h2 { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 56px; }
+  h3 { font-size: 20px; margin-top: 32px; }
+  h4 { font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 15px; margin: 0 0 8px; }
+  p { font-size: 16px; }
+  code { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+  .notice { background: #fbf6e9; border: 1px solid #e5d9a8; border-radius: 6px; padding: 18px 22px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; color: #5a4c1e; }
+  .notice strong { color: #3f3413; }
+  .notice ul { margin: 10px 0 0; padding-left: 20px; }
+  .diagram-box { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 16px 0; }
+  .overview-notes { display: grid; gap: 16px; margin-top: 20px; grid-template-columns: 1fr 1fr 1fr; }
+  .overview-item { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; }
+  .overview-item h4 { color: var(--accent); }
+  .overview-item p { font-size: 14px; margin: 0 0 8px; }
+  .overview-item p:last-child { margin-bottom: 0; }
+  .confirmed-note { background: var(--allow-bg); border-left: 3px solid var(--allow); padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 13px !important; font-family: -apple-system, Helvetica, Arial, sans-serif;}
+  .gap-note { background: var(--drop-bg); border-left: 3px solid var(--drop); padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 13px !important; font-family: -apple-system, Helvetica, Arial, sans-serif; margin: 10px 0; }
+  table { width: 100%; border-collapse: collapse; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 13px; margin: 16px 0; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-dim); background: #fafaf8; }
+  .badge { display: inline-block; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+  .badge.allow { background: var(--allow-bg); color: var(--allow); }
+  .badge.drop { background: var(--drop-bg); color: var(--drop); }
+  .badge.mixed { background: #fdf1de; color: #915a10; }
+  .badge.unknown { background: #eee; color: #555; }
+  .dim { color: var(--ink-dim); }
+  .finding { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 18px 22px; margin: 14px 0; }
+  .finding h4 { margin-top:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc-header">
+  <div class="eyebrow">CVS Health — Information Security</div>
+  <h1>Web Proxy vs. Palo Alto vs. Zscaler</h1>
+  <div class="doc-sub">Three-Platform Enforcement Equivalency Analysis — DLP, Malware, File Blocking, URL Filtering, TLS Integrity &bull; Generated 2026-07-16</div>
+</header>
+
+<div class="notice">
+  <strong>Scope and sources</strong>
+  <p style="margin-top:10px;">This report extends the existing <em>PA vs. Zscaler — DLP &amp; Malware/Threat Prevention Equivalency Analysis</em> (v8.1) to a third platform: the Skyhigh Secure Web Gateway (formerly McAfee Web Gateway) forward proxy, analyzed from a Coordinator configuration backup dated 2026-06-03 (appliance version 12.2.23).</p>
+  <ul>
+    <li><strong>Proxy data</strong> — parsed directly from the backup's exported policy library: 3 custom rule-group files (144 rules), 41 DLP dictionaries, 9 DLP category rulesets, 57 block-action templates, 8 redirect actions, 7 auth methods, 2 antivirus engines, 4 URL-categorization (TrustedSource) engine instances, 4 ICAP integrations, and 223 lists.</li>
+    <li><strong>PA data</strong> — as documented in <em>PA Panorama Security Policy Documentation v8</em> (45 rules, cross-verified against live Panorama config, two clusters: LV/AZ/RI and MID/WIN).</li>
+    <li><strong>Zscaler data</strong> — as documented in the v8.1 equivalency report (direct API export: 22 DLP rules / 33 engines / 166 dictionaries, plus Malware and Advanced Threats policy).</li>
+  </ul>
+  <p><strong>Critical caveat carried over from the proxy analysis:</strong> the backup only exports the appliance's <em>custom</em> rule-group library. The built-in/default rule sets — which is where URL-category blocking and DLP-engine wiring normally live on this platform — are <strong>not present in this backup</strong>. Every proxy finding below distinguishes between "configured as an object" (exists in the backup) and "confirmed enforced" (wired to an active, enabled rule) — the same discipline the PA and Zscaler reports already apply. Enforcement status is determined by checking effective enablement up the full rule-group hierarchy, not just each rule's own flag, since a rule can read <code>enabled="true"</code> while sitting inside a disabled parent group.</p>
+</div>
+
+<h2>Executive Summary</h2>
+<table>
+<thead><tr><th>Domain</th><th>Proxy (Skyhigh/McAfee)</th><th>Palo Alto Panorama</th><th>Zscaler</th><th>Three-Way Read</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>DLP</strong></td>
+  <td>Split by direction: <span class="badge allow">Confirmed active</span> on outbound/upload traffic — <code>CVS Health SSN HICN Block</code>, <code>PCI Block</code>, <code>Member ID</code> rules genuinely block, gated by user allow-lists. <span class="badge drop">Confirmed disabled</span> on inbound/download traffic and the entire ICAP-based DLP integration.</td>
+  <td>22 predefined generic patterns, single rule, <span class="badge drop">alert-only</span>, applied near-universally (42/43 rules). No HICN/MBI-specific pattern.</td>
+  <td>22 rules, mixed maturity: 5 active <span class="badge allow">Block</span> (SSN, HICN, Bank Account, Credit Card, PCI, AWS/Azure/RSA secrets), 10 monitor-only, 7 disabled/draft.</td>
+  <td>The proxy's outbound HICN/SSN/PCI blocking is genuinely comparable to Zscaler's most mature active-block rules — both platforms are actually enforcing the same healthcare-specific patterns today. PA remains the outlier: alert-only, and no HICN/MBI pattern at all.</td>
+</tr>
+<tr>
+  <td><strong>Antivirus / Malware</strong></td>
+  <td>Gateway Anti-Malware active (block threshold 90), but sandbox (MATD) and secondary AV vendor (VX) both <span class="badge drop">disabled</span>. ICAP hooks to an external scanner (Symantec) exist but server lists are empty — not actually connected.</td>
+  <td>Mixed by profile: <code>AV_Best_Practice_SP</code> genuinely blocks (reset-both, all 7 protocols); <code>Alert-All-AV</code> (still 99%+ of the estate) is alert-only.</td>
+  <td>Block by default, all categories, bidirectional — confirmed matching Zscaler's own published best practice exactly.</td>
+  <td>All three have real AV capability, but only Zscaler is verified switched on estate-wide. PA blocks only where the Best Practice profile is actually applied (rare). The proxy blocks locally but has no working second layer (sandbox/ICAP) behind it.</td>
+</tr>
+<tr>
+  <td><strong>File Blocking</strong></td>
+  <td><span class="badge allow">Confirmed active</span> — blocks executables, restricted file extensions, password-protected archives, nested archives, and confirmed-virus content in the live Gateway Anti-Malware rule group.</td>
+  <td>Explicit, unconditional <span class="badge allow">Block</span> for encrypted archives/documents and high-risk executables — 18 Security Profile Groups.</td>
+  <td>Scan-then-block sandbox model; encrypted/unscannable files <span class="badge drop">Allow by default</span> globally.</td>
+  <td>All three platforms have real file-blocking enforcement, though scope differs (proxy: extension/archive-type; PA: encrypted content + high-risk executables; Zscaler: scan-first with a permissive fallback for unscannable files).</td>
+</tr>
+<tr>
+  <td><strong>URL / Content Filtering</strong></td>
+  <td><span class="badge allow">Confirmed active</span> — a 47-category global blocklist plus a separate cloud-storage block rule, both live in the <code>URL Filter</code> rule group. Category IDs couldn't be resolved to names (vendor taxonomy not in this backup), but count-wise this meets or exceeds PA's ~30–34.</td>
+  <td>Genuine, comprehensive category blocking (~30–34 categories: malware, phishing, C2, adult, gambling, weapons, extremism, etc.) across 7 profiles, consistent in Cluster A. Cluster B is far weaker (1 of 7 groups blocks, only 12 categories).</td>
+  <td>No standalone policy found; category logic embedded in Cloud App Control business-exception rules (98 references) — structurally different, not directly comparable.</td>
+  <td>Both the proxy and PA (Cluster A) run genuine, comprehensive category enforcement today.</td>
+</tr>
+<tr>
+  <td><strong>TLS / Certificate Integrity</strong></td>
+  <td><span class="badge drop">Confirmed monitor-only</span> — the rule group with genuine block actions (self-signed, expired, revoked, untrusted CA, CN mismatch) is disabled; the group actually running only logs. Zero certificate-validation rules are blocking traffic today.</td>
+  <td>Not covered in the PA report (Panorama security-rule/SPG scope, not a proxy TLS-inspection layer).</td>
+  <td>Not covered in the Zscaler report (same reason).</td>
+  <td>No comparison available. Worth noting the parallel to PA's own Vulnerability Protection finding elsewhere in this report: a profile that reads as enforcement-grade by name but isn't, once you check which rule group is actually switched on.</td>
+</tr>
+<tr>
+  <td><strong>SaaS Tenant Restriction (Azure AD)</strong></td>
+  <td><span class="badge allow">Confirmed active</span> — Microsoft Tenant Restrictions v1: strips and rewrites <code>Restrict-Access-To-Tenants</code> / <code>Restrict-Access-Context</code> headers on every request to Microsoft's sign-in domains, blocking sign-in to unauthorized/personal Azure AD tenants.</td>
+  <td>Not confirmed in this session's data. PA supports this via URL Filtering &rarr; HTTP Header Insertion (predefined "Office 365" type), but requires manual setup (decryption + URL Filtering Profile + Security Policy) and isn't confirmed configured.</td>
+  <td>Not confirmed in this session's data. Zscaler has a dedicated, native <strong>Tenant Restriction</strong> policy (Tenant Profiles) that's more purpose-built than PA's approach, but not confirmed configured for this tenant either.</td>
+  <td>The proxy is the only one of the three platforms with <em>confirmed</em> tenant-restriction enforcement in this session's evidence &mdash; not because the others lack the capability, but because neither PA's nor Zscaler's exported policy data covered this control area.</td>
+</tr>
+</tbody>
+</table>
+
+<h2>DLP — Deep Dive</h2>
+<div class="finding">
+<h4>Content coverage: proxy and Zscaler converge on the same healthcare-specific patterns</h4>
+<p>The proxy's custom DLP dictionaries and Zscaler's active-block rules target nearly identical sensitive-data categories — both clearly shaped by CVS/Aetna's healthcare and payments context rather than generic PII:</p>
+<table>
+<thead><tr><th>Data Type</th><th>Proxy (Skyhigh)</th><th>PA</th><th>Zscaler</th></tr></thead>
+<tbody>
+<tr><td>SSN (incl. masked)</td><td>Yes — 2 dedicated dictionaries + exclusion lists</td><td>Yes — predefined pattern</td><td>Yes — active Block</td></tr>
+<tr><td>HICN (Medicare claim number)</td><td>Yes — 3 dictionaries (HICN, HICN Keywords, HICN Exclusions)</td><td class="dim">No equivalent pattern</td><td>Yes — active Block</td></tr>
+<tr><td>Bank account number</td><td>Yes — 3 dictionaries + exclusions</td><td>Yes — ABA routing, IBAN (predefined)</td><td>Yes — active Block</td></tr>
+<tr><td>PCI / credit card</td><td>Partial — PCI exclusion/false-positive dictionaries exist, no dedicated PCI-detection dictionary found</td><td>Yes — predefined pattern</td><td>Yes — active Block</td></tr>
+<tr><td>Cloud credentials (AWS/secrets)</td><td>Yes — dedicated AWS key dictionary + password regex</td><td>Yes — AWS/RSA predefined patterns</td><td>Yes — <code>PRD_DLP_Secrets-Block</code>, active</td></tr>
+<tr><td>Health plan member/enrollment IDs</td><td>Yes — GEMS ID, Member ID, Long Member ID, Dependent ID</td><td class="dim">No equivalent</td><td class="dim">Not itemized in export (may fall under "Confidential-Medical")</td></tr>
+</tbody>
+</table>
+<div class="gap-note">The proxy's biggest advantage — genuinely CVS/Aetna-specific detection logic for HICN, GEMS ID, and Member ID — has no PA equivalent at all, since PA's DLP profile only uses Palo Alto's predefined generic pattern library.</div>
+</div>
+
+<div class="finding">
+<h4>Enforcement status: confirmed, and it splits by traffic direction</h4>
+<p>Content sophistication doesn't tell you what's actually happening to traffic. Enforcement status differs sharply across all three, and for the proxy it splits by traffic direction:</p>
+<table>
+<thead><tr><th>Platform</th><th>Confirmed Enforcement</th><th>Basis</th></tr></thead>
+<tbody>
+<tr><td>Proxy (Skyhigh) &mdash; outbound/upload</td><td><span class="badge allow">Active</span></td><td><code>DLP in Request Cycle</code> group contains <code>CVS Health SSN HICN Block</code>, <code>CVS Health PCI Block</code>, and <code>CVS Health Member ID</code> rules &mdash; all genuinely blocking, gated by per-user allow-lists (e.g. an approved-user exception list per pattern).</td></tr>
+<tr><td>Proxy (Skyhigh) &mdash; inbound/download</td><td><span class="badge drop">Disabled</span></td><td><code>DLP Response Cycle</code> (the classification-triggered block rule referencing <code>com.scur.engine.dlpcat.1003</code>) sits inside a group with <code>enabled="false"</code>. The entire <code>Data Loss Prevention w/ICAP</code> integration is disabled at the same level.</td></tr>
+<tr><td>PA Panorama</td><td><span class="badge drop">Alert-only, confirmed</span></td><td><code>NAB - Initial Data Filtering</code> profile's single rule is explicitly <code>action=alert</code> across all 22 patterns, applied via 17 SPGs / 42 of 43 rules. Traffic is logged, not stopped.</td></tr>
+<tr><td>Zscaler</td><td><span class="badge allow">Actively blocking (partially)</span></td><td>5 of 22 rules confirmed Block via direct API export (<code>PRD_DLP_CloudApps</code>, <code>PRD_DLP_UA_Restricted_Data</code>, <code>PRD_DLP_Secrets-Block</code>, <code>PRD_DLP_Slack_Block</code>, <code>PRD_DLP_UA_Rstrc_Webex</code>).</td></tr>
+</tbody>
+</table>
+<div class="confirmed-note">The practical upshot: the proxy's outbound HICN/SSN/PCI/Member-ID blocking is genuinely operating today, and is directionally identical to what Zscaler's most mature rules do. The gap is specifically on inbound content and the ICAP path &mdash; both built, both switched off.</div>
+</div>
+
+<h2>SaaS Tenant Restriction (Azure AD) — Deep Dive</h2>
+<div class="finding">
+<h4>Confirmed active on the proxy; not confirmed either way on PA or Zscaler</h4>
+<p style="font-size:14px;">The proxy runs Microsoft's <strong>Tenant Restrictions v1</strong> mechanism inside an <code>Azure AD Tenant Restrictions</code> rule group: it strips any client-supplied <code>Restrict-Access-To-Tenants</code> / <code>Restrict-Access-Context</code> headers (preventing spoofing), then writes its own values &mdash; sourced from two live-updating subscribed lists (<code>Prod_TenantR_Portals</code>, <code>Prod_TenantR: Domains</code>) &mdash; on every request to Microsoft's sign-in domains. This blocks employees from authenticating into personal Microsoft accounts or unauthorized organizations' M365 tenants from the corporate network. All 6 rules in this group are confirmed active.</p>
+<table>
+<thead><tr><th>Platform</th><th>Capability</th><th>Confirmed Configured?</th></tr></thead>
+<tbody>
+<tr><td>Proxy (Skyhigh)</td><td>Native Tenant Restrictions v1 header injection</td><td class="dim" style="color:var(--allow);">Yes &mdash; confirmed active in this backup</td></tr>
+<tr><td>PA Panorama</td><td>URL Filtering Profile &rarr; HTTP Header Insertion, predefined "Office 365" type (inserts the same two headers)</td><td class="dim">Not confirmed &mdash; capability exists (PAN-OS 8.1+), but this session's PA data doesn't cover it</td></tr>
+<tr><td>Zscaler</td><td>Dedicated <strong>Tenant Restriction</strong> policy (Tenant Profiles) &mdash; more purpose-built than PA's generic header insertion, covers 4 Microsoft sign-in domains including personal-account blocking in one configuration</td><td class="dim">Not confirmed &mdash; the uploaded Zscaler DLP/Malware export didn't cover this policy area</td></tr>
+</tbody>
+</table>
+<div class="confirmed-note"><strong>Delivering this on PA:</strong> requires (1) SSL Forward Proxy decryption on the Microsoft login domains &mdash; header insertion doesn't work without decrypting the session first, a common misconfiguration in the field; (2) a URL Filtering Profile with the predefined "Office 365" HTTP Header Insertion entry populated with your tenant ID/domain; (3) a Security Policy allowing that traffic with the profile attached. Microsoft's current recommendation is actually <strong>Tenant Restrictions v2</strong>, which moves enforcement into Entra cross-tenant access policies rather than depending on proxy/firewall header injection &mdash; worth considering as the target state rather than replicating v1 on a second platform.</div>
+</div>
+
+<h2>Malware / Threat Prevention — Deep Dive</h2>
+<table>
+<thead><tr><th>Control</th><th>Proxy</th><th>PA</th><th>Zscaler</th></tr></thead>
+<tbody>
+<tr><td>Primary AV engine</td><td>Gateway Anti-Malware — active, <code>MinimumBlockThreatRating=90</code></td><td><code>Alert-All-AV</code> (default, ~99% of estate) vs. <code>AV_Best_Practice_SP</code> (reset-both, rare)</td><td>Block, all categories, bidirectional — matches vendor best practice</td></tr>
+<tr><td>Sandbox / advanced detection</td><td><code>MATD</code> (Trellix sandbox) — configured but <span class="badge drop">disabled</span></td><td>WildFire referenced in the general PAN-OS pipeline; not itemized per-profile in the PA report</td><td>Sandbox Policy — scan-then-block; unscannable files allowed by default</td></tr>
+<tr><td>Secondary AV vendor</td><td><code>VX</code> — configured but <span class="badge drop">disabled</span></td><td class="dim">n/a</td><td class="dim">n/a</td></tr>
+<tr><td>External scan integration</td><td>ICAP ReqMod/RespMod to Symantec — hooks exist, server list <span class="badge drop">empty</span></td><td class="dim">n/a</td><td class="dim">n/a</td></tr>
+<tr><td>C2 / botnet detection</td><td class="dim">Not found in visible policy</td><td>Alert-only across both Alert-All and Best Practice profiles</td><td>Block — Botnet/Fraud/Unauthorized Communication Protection, verified against vendor recommendation</td></tr>
+</tbody>
+</table>
+<div class="gap-note">The proxy runs a single active AV engine with no working second layer — the sandbox and secondary vendor are both configured but switched off, and the ICAP hook to an external scanner has no server behind it. That's a thinner defense-in-depth stack than either PA's Best Practice profile or Zscaler's default posture, though PA only gets credit for this where the Best Practice SPG is actually assigned (rare, per the PA report's estate-wide 99% Alert-All finding).</div>
+
+<h2>URL / Content Filtering — Deep Dive</h2>
+<div class="finding">
+<h4>Confirmed active</h4>
+<p>The proxy's <code>URL Filter</code> rule group contains a confirmed-active, global <strong>47-category blocklist</strong> (<code>Category Blocklist</code>) plus a separate rule blocking cloud-storage categories specifically.</p>
+<p style="font-size:14px;">One real limitation remains: the 47 category IDs (e.g. <code>com.scur.category.202</code>) can't be resolved to human-readable names &mdash; the vendor's internal ID-to-name taxonomy isn't included in this backup, so a category-by-category comparison against PA's named list (adult, gambling, malware, etc.) isn't possible without that mapping. Count-wise, 47 meets or exceeds PA's ~30&ndash;34.</p>
+<p>By contrast:</p>
+<ul style="font-size:14px;">
+<li><strong>PA</strong> blocks ~30–34 named categories consistently across 7 checked profiles in Cluster A (malware, phishing, C2, adult, gambling, weapons, extremism, proxy-avoidance, and more) — genuine, comprehensive enforcement, not alerting. Cluster B is materially weaker (only 1 of 7 profile groups blocks anything, and just 12 categories).</li>
+<li><strong>Zscaler</strong> has no standalone URL filtering policy in the reviewed export; category logic is embedded inside Cloud App Control's business-exception rules instead — a structural difference, not a maturity gap, per the v8.1 report's own framing.</li>
+</ul>
+</div>
+
+<h2>What This Means for the Traffic-Class Framework</h2>
+<div class="finding">
+<h4>Three platforms, three different enforcement shapes — not a simple maturity ranking</h4>
+<p>No single platform is "ahead" across the board:</p>
+<ul style="font-size:14px;">
+<li><strong>Zscaler</strong> is the most mature on DLP and malware/threat blocking — the only platform confirmed actively enforcing (not just alerting) in both domains, consistent with 3+ years of tuning.</li>
+<li><strong>Palo Alto</strong> is the strongest on file blocking and the only one with confirmed comprehensive URL category enforcement — but its DLP and most of its threat-prevention stack are alert-only, a known gap against PA's own published best-practice guidance.</li>
+<li><strong>The proxy</strong> has the richest DLP <em>content definitions</em> of the three (genuinely CVS/Aetna-specific: HICN, GEMS ID, Member ID) and a mature TLS-integrity layer none of the other reports examine — but its DLP wiring is unverifiable, its AV stack lacks a working second layer, and its URL-category policy isn't visible in this export at all.</li>
+</ul>
+<p style="font-size:14px;">For the enforcement strategy: the proxy is very likely carrying a real, active role in the traffic-class model for legacy/decrypted web egress — but this backup can't confirm which of its defined controls (DLP especially) are actually in the live enforcement path versus configured-and-dormant. Pulling the appliance's default/built-in rule set (not just the custom library) would close that gap and let this become a like-for-like comparison rather than a partial one.</p>
+</div>
+
+<h2>Recommendations — Path to Parity</h2>
+<div class="notice">
+  <strong>Framing</strong>
+  <p style="margin-top:10px;">The findings above describe where each platform's configuration stands today, not a scorecard of which vendor is "better." PA is 6&ndash;8 months into a rollout Zscaler has had 3+ years to mature, and PA's own documentation already names its next steps. The items below are concrete, additive fixes aimed at closing specific gaps &mdash; not a case against the platform.</p>
+</div>
+
+<div class="finding">
+<h4>1. Add HICN detection to <code>NAB - Initial Data Filtering</code> — <span class="badge allow">Ready to implement</span></h4>
+<p style="font-size:14px;">PA's DLP profile uses only Palo Alto's predefined generic pattern library (SSN, credit card, bank routing, AWS/RSA keys, national IDs) &mdash; it has no pattern for Medicare Health Insurance Claim Numbers, even though this is one of the proxy's best-covered categories and a CMS-regulated identifier for a healthcare payer. This is a straightforward gap to close, not a redesign: the proxy's existing HICN dictionaries translate directly into two PA Custom Data Patterns.</p>
+<table>
+<thead><tr><th>New Data Pattern</th><th>Type</th><th>Pattern</th><th>Source</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>HICN &ndash; Numeric Format</strong></td>
+  <td>Regular Expression</td>
+  <td><code>\b\d{3}-?\d{2}-?\d{4}-?[A-Za-z]{1,2}\b</code></td>
+  <td>Consolidated from the proxy's <code>CVS Health HICN</code> and <code>HICN RegEx</code> dictionaries &mdash; legacy SSN-shaped HICN with 1&ndash;2 letter Medicare/RRB suffix code.</td>
+</tr>
+<tr>
+  <td><strong>HICN &ndash; Keyword/Context</strong></td>
+  <td>Regular Expression</td>
+  <td><code>(?i)\b(HICN|HIC\s*#|HICN\s*#|HIC\s*No\.?|HICN\s*No\.?|Medicare\s+HIC(?:N)?|Health\s+Insurance\s+Claim\s+Number)\b</code></td>
+  <td>Deduplicated from the proxy's 14-term <code>HICN Terms</code> / <code>CVS Health HICN Keywords</code> dictionaries.</td>
+</tr>
+</tbody>
+</table>
+<p style="font-size:14px;"><strong>Implementation path:</strong> add both as new objects under <em>Objects &rarr; Custom Objects &rarr; Data Patterns</em> in the device group that owns <code>NAB - Initial Data Filtering</code> (shared across Meritain, PPOM, LV-Colo, and the Proxy SPGs), then attach them to that profile the same way the existing 22 predefined patterns are attached.</p>
+<div class="confirmed-note">Decision needed, not assumed: the profile's current rule is alert-only for all 22 existing patterns (PA's unmodified default, not a deliberate CVS choice). Adding HICN to that same rule inherits alert-only behavior. If HICN should actually block &mdash; which would make it the one pattern in this profile enforcing rather than just logging &mdash; it needs its own rule with <code>action=block</code>, since editing the shared rule's action would change behavior for all 22 existing patterns at once.</div>
+</div>
+
+<div class="finding">
+<h4>2. Port TLS/certificate-integrity checks to PA's Decryption Profile — <span class="badge mixed">Mostly ready, two partial mappings</span></h4>
+<p style="font-size:14px;">The proxy runs 8 distinct certificate-validation checks on decrypted HTTPS traffic (10 rules across two rule sets, same logic in each). PA has a direct architectural equivalent &mdash; the <strong>Decryption Profile</strong> attached to SSL Forward Proxy decryption policy &mdash; and most of these checks are native toggles there, not new capability. This is a genuine like-for-like port, not a proxy-specific concept being forced onto PA.</p>
+<table>
+<thead><tr><th>Proxy Rule (enabled)</th><th>PA Decryption Profile Equivalent</th><th>Mapping</th></tr></thead>
+<tbody>
+<tr><td>Block Expired Server / CA Certificates</td><td>SSL Forward Proxy &rarr; <em>Block sessions with expired certificates</em></td><td class="dim">Direct match</td></tr>
+<tr><td>Block Self Signed Certificates</td><td>SSL Forward Proxy &rarr; <em>Block sessions with untrusted issuers</em></td><td class="dim">Direct match &mdash; a self-signed cert is untrusted by definition once it's not in the trust store</td></tr>
+<tr><td>Block Unknown / Untrusted Certificate Authorities</td><td>SSL Forward Proxy &rarr; <em>Block sessions with untrusted issuers</em></td><td class="dim">Direct match &mdash; PA doesn't distinguish "unknown CA" from "untrusted CA" the way the proxy does; both collapse to one toggle</td></tr>
+<tr><td>Block Revoked Certificates</td><td>Certificate Profile (attached to decryption) &rarr; OCSP/CRL checking enabled, <em>Block session if certificate status is unknown</em></td><td class="dim">Direct match, but lives on the Certificate Profile, not the Decryption Profile itself &mdash; needs both objects checked together</td></tr>
+<tr><td>Block Weak Key Exchange</td><td>SSL Protocol Settings tab &rarr; minimum TLS version + allowed key exchange algorithms</td><td>Partial &mdash; PA restricts by protocol version/cipher suite, not a standalone "key exchange bits" threshold like the proxy's. Achievable by disabling weak suites, not a single equivalent toggle.</td></tr>
+<tr><td>Block Unsafe Signature Algorithms</td><td><em>No direct equivalent found</em></td><td class="dim" style="color:var(--drop);">Gap &mdash; PAN-OS Decryption Profiles don't expose a signature-algorithm blocklist. Would need Certificate Profile minimum key-size settings as a partial substitute, or confirmation this is enforced elsewhere.</td></tr>
+<tr><td>Block Common Name Mismatch</td><td><em>No direct equivalent found</em></td><td class="dim" style="color:var(--drop);">Gap &mdash; this is a proxy-specific check (requested hostname vs. presented cert CN/SAN). PA's forward-proxy re-signing model doesn't expose an equivalent standalone toggle in the Decryption Profile.</td></tr>
+<tr><td>Block Certificate Chains with Violations (path length)</td><td><em>No direct equivalent found</em></td><td class="dim" style="color:var(--drop);">Gap &mdash; not a standard Decryption Profile toggle; would need verification against your specific PAN-OS version.</td></tr>
+</tbody>
+</table>
+<div class="confirmed-note">5 of 8 checks port cleanly with no new capability required &mdash; just configuration. The remaining 3 (signature algorithm, CN mismatch, path length) are genuine gaps worth a direct conversation with your PA engineering contact or Palo Alto TAM before assuming they're unaddressable, rather than being logged here as confirmed-impossible.</div>
+</div>
+
+<div class="finding">
+<h4>3. Port CONNECT port restriction (SSH/Telnet tunneling) to PA — <span class="badge allow">Ready to implement</span></h4>
+<p style="font-size:14px;">The proxy blocks HTTPS CONNECT tunnels to destination ports 22 (SSH) and 23 (Telnet) &mdash; a defense against tunneling raw protocols through the HTTPS port to evade inspection. PA is App-ID native, so the equivalent is stronger than a straight port copy: a Security Policy rule denying the <code>ssh</code> and <code>telnet</code> applications outright (App-ID identifies these regardless of which port they run on, closing the exact evasion case the proxy's rule exists to catch), plus the same explicit <code>tcp/22</code> and <code>tcp/23</code> service-based deny as defense-in-depth matching the proxy's behavior exactly.</p>
+<div class="confirmed-note">This would sit well as a Security Policy rule in the pre-rulebase, ahead of the general internet-egress allow rules, in whichever device group(s) carry the proxy's CONNECT-tunneled traffic today.</div>
+</div>
+
+<div class="finding">
+<h4>4. Not portable / no action needed</h4>
+<ul style="font-size:14px;">
+<li><strong>Geolocation blocking</strong> &mdash; the proxy's <code>Geolocation.Blocked.Countries</code> list is currently empty (0 entries) on the source system. There's nothing configured to port; if a country blocklist is wanted on PA, it would be a new policy decision, not a migration of existing proxy policy.</li>
+<li><strong>Proxy-chaining prevention</strong> (blocking 31 known internal proxy hostnames) &mdash; this defends against a proxy-architecture-specific failure mode (traffic looping back through another Aetna proxy) that doesn't have a meaningful PA equivalent; not recommended for porting.</li>
+</ul>
+</div>
+
+<div class="finding">
+<h4>5. Further parity items identified above, not yet scoped into fixes</h4>
+<p style="font-size:14px;">Flagged here for tracking; each would need its own scoping pass before an implementation plan like the HICN fix above:</p>
+<ul style="font-size:14px;">
+<li><strong>DLP action posture</strong> &mdash; PA's own Enterprise DLP documentation already recommends moving from Alert to Block once false-positive rates are understood; this affects the other 22 patterns in <code>NAB - Initial Data Filtering</code>, not just the new HICN additions.</li>
+<li><strong>Threat Prevention posture</strong> &mdash; Vulnerability Protection's "Best Practice" profile has zero deliberate blocking rules despite the name; Palo Alto's own guidance recommends transitioning from Alert-All to the predefined strict/blocking profiles.</li>
+<li><strong>Cluster B (MID/WIN) parity</strong> &mdash; no DLP profile exists in this cluster at all; bringing it to Cluster A's baseline (even alert-only) would close the widest gap identified in this report.</li>
+</ul>
+</div>
+
+<h2>Appendix A — PA Configuration Change List</h2>
+<p style="font-size:14px;">Consolidated, trackable list of every specific PA change identified in this analysis. Intended as a working change-request input, not prose &mdash; each row is a discrete, assignable item. Change IDs are referenced back to the corresponding finding above.</p>
+
+<h3 style="font-size:16px;">A.1 — Ready to implement</h3>
+<table>
+<thead><tr><th>ID</th><th>Object / Policy</th><th>Action</th><th>Detail</th><th>Target Scope</th></tr></thead>
+<tbody>
+<tr><td><strong>CHG-01</strong></td><td>Custom Data Pattern (new)</td><td>Create</td><td>Type: Regular Expression. Name: <em>HICN &ndash; Numeric Format</em>. Pattern: <code>\b\d{3}-?\d{2}-?\d{4}-?[A-Za-z]{1,2}\b</code></td><td>Device group owning <code>NAB - Initial Data Filtering</code></td></tr>
+<tr><td><strong>CHG-02</strong></td><td>Custom Data Pattern (new)</td><td>Create</td><td>Type: Regular Expression. Name: <em>HICN &ndash; Keyword/Context</em>. Pattern: <code>(?i)\b(HICN|HIC\s*#|HICN\s*#|HIC\s*No\.?|HICN\s*No\.?|Medicare\s+HIC(?:N)?|Health\s+Insurance\s+Claim\s+Number)\b</code></td><td>Same device group as CHG-01</td></tr>
+<tr><td><strong>CHG-03</strong></td><td><code>NAB - Initial Data Filtering</code> profile</td><td>Modify</td><td>Attach CHG-01 and CHG-02 to the profile's pattern list, same mechanism as the existing 22 predefined patterns.</td><td>Same profile as CHG-01/02</td></tr>
+<tr><td><strong>CHG-05</strong></td><td>Decryption Profile (SSL Forward Proxy tab)</td><td>Verify / Enable</td><td>Enable <em>Block sessions with expired certificates</em> if not already set.</td><td>Decryption Profile(s) applied to proxy-equivalent decrypted egress traffic &mdash; confirm exact profile/device group before implementing</td></tr>
+<tr><td><strong>CHG-06</strong></td><td>Decryption Profile (SSL Forward Proxy tab)</td><td>Verify / Enable</td><td>Enable <em>Block sessions with untrusted issuers</em> &mdash; covers self-signed, unknown CA, and untrusted CA in one toggle.</td><td>Same profile as CHG-05</td></tr>
+<tr><td><strong>CHG-07</strong></td><td>Certificate Profile (attached to decryption)</td><td>Verify / Enable</td><td>Enable OCSP/CRL revocation checking; set <em>Block session if certificate status is unknown</em>.</td><td>Same profile as CHG-05</td></tr>
+<tr><td><strong>CHG-08</strong></td><td>Decryption Profile (SSL Protocol Settings tab)</td><td>Modify</td><td>Set minimum TLS version and restrict allowed key-exchange/cipher suites to exclude weak algorithms. Partial equivalent to the proxy's key-exchange-bits threshold &mdash; no single matching toggle.</td><td>Same profile as CHG-05</td></tr>
+<tr><td><strong>CHG-12</strong></td><td>Security Policy (new rule)</td><td>Create</td><td>Deny App-ID <code>ssh</code> and <code>telnet</code> regardless of destination port. Place in pre-rulebase, ahead of general egress-allow rules.</td><td>Device group(s) carrying CONNECT-tunneled egress traffic &mdash; confirm exact device group before implementing</td></tr>
+<tr><td><strong>CHG-13</strong></td><td>Security Policy (new rule)</td><td>Create</td><td>Explicit deny, service <code>tcp/22</code> and <code>tcp/23</code>, as defense-in-depth alongside CHG-12 &mdash; matches the proxy's port-based rule directly.</td><td>Same scope as CHG-12</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size:16px;">A.2 — Decision required before implementation</h3>
+<table>
+<thead><tr><th>ID</th><th>Decision</th><th>Why it can't be pre-set</th><th>Owner</th></tr></thead>
+<tbody>
+<tr><td><strong>DEC-01</strong></td><td>Should CHG-01/02 (HICN patterns) alert-only or block?</td><td>Attaching to the existing <code>NAB - Initial Data Filtering</code> rule inherits that rule's alert-only action for all 22 patterns at once. A block outcome for HICN specifically requires a <em>separate</em> rule with <code>action=block</code>, not a modification of the shared one.</td><td>Whoever owns the Data Filtering profile / DLP policy decision</td></tr>
+<tr><td><strong>DEC-02</strong></td><td>Confirm exact device group(s)/zones for CHG-05&ndash;08 and CHG-12&ndash;13</td><td>This report doesn't establish which PA device group actually carries the proxy's equivalent decrypted-egress traffic path &mdash; applying these to the wrong Decryption Profile or Security Policy scope would have no effect.</td><td>PA policy owner / whoever manages device group assignment</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size:16px;">A.3 — Open items, no PAN-OS equivalent confirmed</h3>
+<table>
+<thead><tr><th>ID</th><th>Gap</th><th>Next Step</th></tr></thead>
+<tbody>
+<tr><td><strong>OPEN-01</strong></td><td>No PAN-OS Decryption Profile toggle found for blocking unsafe/weak certificate signature algorithms.</td><td>Confirm with Palo Alto TAM or engineering whether Certificate Profile minimum key-size settings cover this, or whether it requires a different mechanism.</td></tr>
+<tr><td><strong>OPEN-02</strong></td><td>No PAN-OS equivalent found for the proxy's Common Name / requested-host mismatch check.</td><td>Likely an architectural difference (proxy re-signing vs. PA's decryption model) rather than a missing feature &mdash; confirm before treating as a true gap.</td></tr>
+<tr><td><strong>OPEN-03</strong></td><td>No PAN-OS Decryption Profile toggle found for certificate chain path-length violations.</td><td>Verify against the specific PAN-OS version in use; may exist under a different profile or setting name.</td></tr>
+</tbody>
+</table>
+
+<h3 style="font-size:16px;">A.4 — Broader parity items (not yet scoped into specific changes)</h3>
+<table>
+<thead><tr><th>ID</th><th>Item</th><th>Scope Needed Before a CHG Item Can Be Written</th></tr></thead>
+<tbody>
+<tr><td><strong>PARK-01</strong></td><td>Transition <code>NAB - Initial Data Filtering</code>'s existing 22 patterns from Alert to Block.</td><td>False-positive rate review, per PA's own recommended monitor-then-block process.</td></tr>
+<tr><td><strong>PARK-02</strong></td><td>Add deliberate blocking rules to <code>Vulnerability_Best_Practice_SP</code> (currently 14 of 15 rules explicitly alert).</td><td>Review by whoever owns Threat Prevention profile design &mdash; naming implies enforcement that isn't actually configured.</td></tr>
+<tr><td><strong>PARK-03</strong></td><td>Build a DLP profile for Cluster B (MID/WIN) &mdash; currently no DLP profile exists in any of its 7 Security Profile Groups.</td><td>Decide whether Cluster B should simply inherit <code>NAB - Initial Data Filtering</code> or needs a purpose-built profile.</td></tr>
+</tbody>
+</table>
+
+<h2>Data Limitations</h2>
+<div class="notice">
+<ul>
+<li>Proxy figures come from a single Coordinator backup's <em>custom</em> rule-group export only — default/built-in rule sets (where URL filtering and DLP-engine wiring likely live) are absent.</li>
+<li>PA and Zscaler figures are reproduced from the existing v8 and v8.1 reports as-is, not re-verified in this session.</li>
+<li>DLP dictionary/category "coverage" comparisons above describe pattern <em>definitions</em>, not validated detection accuracy on any platform.</li>
+<li>Category ID values in the proxy's TrustedSource/URL-categorization lists (e.g. <code>com.scur.category.106</code>) could not be resolved to human-readable category names — the vendor's internal ID-to-name taxonomy isn't included in this backup.</li>
+</ul>
+</div>
+
+</div>
+</body>
+</html>
